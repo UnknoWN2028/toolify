@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Age Calculator - Calculate Your Exact Age | Toolify</title>
+  <meta name="description" content="Calculate your exact age in years, months, and days. Free online age calculator - just enter your birth date and get instant results.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://toolify.tools/tools/age-calculator.html">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="../index.html" class="logo"><div class="logo-icon">⚡</div>Toolify</a>
+  <nav class="nav-links">
+    <a href="../index.html">Home</a><a href="age-calculator.html">Age</a><a href="bmi-calculator.html">BMI</a><a href="password-generator.html">Password</a><a href="word-counter.html">Word</a>
+  </nav>
+</div></header>
+
+<main class="tool-page">
+  <nav class="breadcrumb"><a href="../index.html">Home</a> <span>/</span> <span>Age Calculator</span></nav>
+  <h1>Age Calculator</h1>
+  <p class="subtitle">Calculate your exact age in years, months, and days. Just enter your date of birth below.</p>
+  <div class="ad-placeholder">[ AdSense Ad - 728x90 ]</div>
+
+  <div class="tool-card-main">
+    <div class="form-group"><label for="birthDate">Date of Birth</label><input type="date" id="birthDate" onchange="calcAge()"></div>
+    <div class="form-group"><label for="calcDate">Calculate At (default: today)</label><input type="date" id="calcDate" onchange="calcAge()"></div>
+    <button class="btn" onclick="calcAge()">🔢 Calculate Age</button>
+
+    <div class="result-box" id="resultBox">
+      <div class="result-value" id="ageResult"></div>
+      <div class="result-label" id="ageDetail"></div>
+    </div>
+  </div>
+
+  <div class="ad-placeholder">[ AdSense Ad - 300x250 ]</div>
+
+  <section style="margin-top:48px">
+    <h2>How It Works</h2>
+    <p style="margin-top:12px;color:var(--text-secondary);line-height:1.8">Enter your birth date and click Calculate. Age is computed accounting for leap years and varying month lengths. Also shows total months, weeks, and days.</p>
+    <h2 style="margin-top:24px">FAQ</h2>
+    <h3 style="margin-top:12px;font-size:1rem">Does this use Korean age?</h3>
+    <p style="color:var(--text-secondary)">No, this uses international age. Korean age counts you as 1 at birth and adds a year every January 1st.</p>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-links"><a href="../index.html">Home</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+  <p>&copy; 2025 Toolify</p>
+</footer>
+
+<script>
+function calcAge(){
+  const b=document.getElementById('birthDate').value;
+  if(!b){document.getElementById('resultBox').classList.remove('visible');return;}
+  const cd=document.getElementById('calcDate').value||undefined;
+  const calc=new Date(cd?cd+'T00:00:00':undefined);
+  const birth=new Date(b+'T00:00:00');
+  if(birth>calc){document.getElementById('ageResult').textContent='Invalid';document.getElementById('ageDetail').textContent='Birth date before calc date.';document.getElementById('resultBox').classList.add('visible');return;}
+  let y=calc.getFullYear()-birth.getFullYear(),m=calc.getMonth()-birth.getMonth(),d=calc.getDate()-birth.getDate();
+  if(d<0){m--;d+=new Date(calc.getFullYear(),calc.getMonth(),0).getDate();}
+  if(m<0){y--;m+=12;}
+  let r='';if(y)r+=y+' year'+(y!==1?'s ':' ');if(m)r+=m+' month'+(m!==1?'s ':' ');r+=d+' day'+(d!==1?'s':'');
+  const tm=y*12+m,td=Math.floor((calc-birth)/86400000),tw=Math.floor(td/7);
+  document.getElementById('ageResult').textContent=r.trim();
+  document.getElementById('ageDetail').innerHTML='Or: <strong>'+tm+'</strong> months | <strong>'+tw+'</strong> weeks | <strong>'+td.toLocaleString()+'</strong> days';
+  document.getElementById('resultBox').classList.add('visible');
+}
+</script>
+</body>
+</html>
