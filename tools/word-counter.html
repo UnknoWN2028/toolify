@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Counter - Count Words & Characters | Toolify</title>
+  <meta name="description" content="Free online word counter and character counter. Count words, characters, sentences, paragraphs. Real-time stats with reading time estimate. Paste or type.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://toolify.tools/tools/word-counter.html">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="../index.html" class="logo"><div class="logo-icon">⚡</div>Toolify</a>
+  <nav class="nav-links">
+    <a href="../index.html">Home</a><a href="age-calculator.html">Age</a><a href="bmi-calculator.html">BMI</a><a href="password-generator.html">Password</a><a href="word-counter.html">Word</a>
+  </nav>
+</div></header>
+
+<main class="tool-page">
+  <nav class="breadcrumb"><a href="../index.html">Home</a> <span>/</span> <span>Word Counter</span></nav>
+  <h1>Word Counter</h1>
+  <p class="subtitle">Real-time word and character counter. Paste your text or type directly.</p>
+  <div class="ad-placeholder">[ AdSense Ad - 728x90 ]</div>
+
+  <div class="tool-card-main">
+    <div class="form-group"><textarea id="ti" placeholder="Type or paste your text here..." oninput="cnt()"></textarea></div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('ti').value='';cnt()">🗑️ Clear</button>
+      <button class="btn btn-sm btn-secondary" onclick="navigator.clipboard.readText().then(t=>{document.getElementById('ti').value=t;cnt()}).catch(()=>{})">📋 Paste</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px">
+      <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);text-align:center">
+        <div style="font-size:1.8rem;font-weight:700;color:var(--primary)" id="cw">0</div><div style="font-size:0.8rem;color:var(--text-secondary)">Words</div>
+      </div>
+      <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);text-align:center">
+        <div style="font-size:1.8rem;font-weight:700" id="cc">0</div><div style="font-size:0.8rem;color:var(--text-secondary)">Characters</div>
+      </div>
+      <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);text-align:center">
+        <div style="font-size:1.8rem;font-weight:700" id="cn">0</div><div style="font-size:0.8rem;color:var(--text-secondary)">No spaces</div>
+      </div>
+      <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);text-align:center">
+        <div style="font-size:1.8rem;font-weight:700" id="cs">0</div><div style="font-size:0.8rem;color:var(--text-secondary)">Sentences</div>
+      </div>
+      <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);text-align:center">
+        <div style="font-size:1.8rem;font-weight:700" id="cp">0</div><div style="font-size:0.8rem;color:var(--text-secondary)">Paragraphs</div>
+      </div>
+      <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);text-align:center">
+        <div style="font-size:1.8rem;font-weight:700" id="cl">0</div><div style="font-size:0.8rem;color:var(--text-secondary)">Lines</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;font-size:0.875rem;color:var(--text-secondary)">
+      Reading: ~<strong id="rt">0</strong> min | Speaking: ~<strong id="st">0</strong> min
+    </div>
+  </div>
+
+  <div class="ad-placeholder">[ AdSense Ad - 300x250 ]</div>
+</main>
+
+<footer class="footer"><div class="footer-links"><a href="../index.html">Home</a><a href="#">Privacy</a><a href="#">Terms</a></div><p>&copy; 2025 Toolify</p></footer>
+
+<script>
+function cnt(){
+  const t=document.getElementById('ti').value;
+  const w=t.trim()?t.trim().split(/\s+/).length:0;
+  document.getElementById('cw').textContent=w;
+  document.getElementById('cc').textContent=t.length;
+  document.getElementById('cn').textContent=t.replace(/\s/g,'').length;
+  document.getElementById('cs').textContent=t.split(/[.!?]+/).filter(s=>s.trim()).length;
+  document.getElementById('cp').textContent=t.split(/\n\s*\n/).filter(p=>p.trim()).length||(t.trim()?1:0);
+  document.getElementById('cl').textContent=t.split(/\n/).length;
+  document.getElementById('rt').textContent=Math.max(1,Math.ceil(w/238));
+  document.getElementById('st').textContent=Math.max(1,Math.ceil(w/150));
+}
+</script>
+</body>
+</html>
