@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowTime - Focus Timer & Ambient Sounds | Toolify</title>
+<meta name="description" content="Beautiful focus timer with ambient sounds. Pomodoro technique, rain sounds, forest, ocean, and cafe ambiance. Stay productive and focused.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://toolify.tools/tools/focus-timer.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e17;
+  --surface: rgba(255,255,255,0.04);
+  --surface-hover: rgba(255,255,255,0.08);
+  --text: #e8ecf1;
+  --text-secondary: #8b95a5;
+  --accent: #a78bfa;
+  --accent-glow: rgba(167,139,250,0.3);
+  --accent-2: #67e8f9;
+  --accent-3: #f472b6;
+  --green: #34d399;
+  --orange: #fb923c;
+  --red: #f87171;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 16px; }
+body {
+  font-family: 'Outfit', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Animated background orbs */
+.bg-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.3;
+  pointer-events: none;
+  animation: orbFloat 20s ease-in-out infinite;
+}
+.bg-orb-1 { width: 500px; height: 500px; background: var(--accent); top: -10%; left: -5%; animation-delay: 0s; }
+.bg-orb-2 { width: 400px; height: 400px; background: var(--accent-2); bottom: -10%; right: -5%; animation-delay: -7s; }
+.bg-orb-3 { width: 300px; height: 300px; background: var(--accent-3); top: 50%; left: 50%; animation-delay: -14s; }
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(5%, -5%) scale(1.1); }
+  50% { transform: translate(-3%, 8%) scale(0.9); }
+  75% { transform: translate(-8%, -3%) scale(1.05); }
+}
+
+/* Main container */
+.app-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  padding: 24px;
+}
+
+/* Glass card */
+.glass {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  padding: 40px 32px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mode selector */
+.mode-selector {
+  display: flex;
+  gap: 6px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 40px;
+  padding: 4px;
+  margin-bottom: 40px;
+}
+.mode-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 36px;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.mode-btn:hover { color: var(--text); background: var(--surface-hover); }
+.mode-btn.active {
+  background: rgba(167,139,250,0.2);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+/* Timer circle */
+.timer-circle-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 32px;
+  position: relative;
+}
+.timer-svg { transform: rotate(-90deg); width: 260px; height: 260px; }
+.timer-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 6; }
+.timer-progress {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 754;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.5s linear, stroke 0.5s;
+  filter: drop-shadow(0 0 12px var(--accent-glow));
+}
+.timer-progress.break { stroke: var(--green); filter: drop-shadow(0 0 12px rgba(52,211,153,0.3)); }
+.timer-text {
+  position: absolute;
+  text-align: center;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.timer-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 3.5rem;
+  font-weight: 300;
+  letter-spacing: -2px;
+  color: var(--text);
+  line-height: 1;
+}
+.timer-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+.ctrl-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+.ctrl-btn:hover { background: var(--surface-hover); border-color: rgba(255,255,255,0.2); transform: translateY(-1px); }
+.ctrl-btn:active { transform: scale(0.95); }
+.ctrl-btn.play {
+  width: 64px; height: 64px;
+  background: var(--accent);
+  border-color: var(--accent);
+  font-size: 1.5rem;
+  box-shadow: 0 0 24px var(--accent-glow);
+}
+.ctrl-btn.play:hover { background: #b49cf7; box-shadow: 0 0 32px var(--accent-glow); }
+.ctrl-btn.play.paused { background: var(--green); border-color: var(--green); box-shadow: 0 0 20px rgba(52,211,153,0.3); }
+
+/* Ambient sounds */
+.sound-section { margin-bottom: 32px; }
+.sound-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+.sound-grid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.sound-btn {
+  padding: 10px 16px;
+  border-radius: 40px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(10px);
+}
+.sound-btn:hover { background: var(--surface-hover); color: var(--text); }
+.sound-btn.active {
+  background: rgba(167,139,250,0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+.sound-btn .sound-icon { font-size: 1rem; }
+.volume-slider {
+  width: 100%;
+  margin-top: 12px;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.1);
+  outline: none;
+}
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* Session counter */
+.session-info {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.session-stat { text-align: center; }
+.session-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text);
+}
+.session-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+/* Nudge for ad */
+.ad-space {
+  text-align: center;
+  margin-top: 20px;
+  padding: 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px dashed rgba(255,255,255,0.08);
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 520px) {
+  .timer-svg { width: 220px; height: 220px; }
+  .timer-time { font-size: 2.8rem; }
+  .mode-btn { font-size: 0.75rem; padding: 8px 10px; }
+  .glass { padding: 28px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
+<div class="app-container">
+  <div class="glass">
+    
+    <!-- Mode Selector -->
+    <div class="mode-selector" id="modeSelector">
+      <button class="mode-btn active" data-min="25" data-label="Focus">🎯 Focus</button>
+      <button class="mode-btn" data-min="5" data-label="Short Break">☕ Break</button>
+      <button class="mode-btn" data-min="15" data-label="Long Break">🌿 Long</button>
+    </div>
+
+    <!-- Timer Circle -->
+    <div class="timer-circle-wrap">
+      <svg class="timer-svg" viewBox="0 0 260 260">
+        <circle class="timer-bg" cx="130" cy="130" r="120"/>
+        <circle class="timer-progress" id="progressRing" cx="130" cy="130" r="120"/>
+      </svg>
+      <div class="timer-text">
+        <div class="timer-time" id="timerDisplay">25:00</div>
+        <div class="timer-label" id="timerLabel">ready</div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="ctrl-btn" id="btnReset" title="Reset" onclick="resetTimer()">↺</button>
+      <button class="ctrl-btn play" id="btnPlay" title="Start" onclick="toggleTimer()">▶</button>
+      <button class="ctrl-btn" id="btnSkip" title="Skip" onclick="skipTimer()">⏭</button>
+    </div>
+
+    <!-- Ambient Sounds -->
+    <div class="sound-section">
+      <div class="sound-title">🎵 Ambient Sounds</div>
+      <div class="sound-grid" id="soundGrid">
+        <button class="sound-btn" data-sound="none" onclick="setSound('none', this)">🔇 None</button>
+        <button class="sound-btn" data-sound="rain" onclick="setSound('rain', this)">🌧️ Rain</button>
+        <button class="sound-btn" data-sound="forest" onclick="setSound('forest', this)">🌲 Forest</button>
+        <button class="sound-btn" data-sound="ocean" onclick="setSound('ocean', this)">🌊 Ocean</button>
+        <button class="sound-btn" data-sound="cafe" onclick="setSound('cafe', this)">☕ Cafe</button>
+      </div>
+      <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50" oninput="setVolume(this.value)">
+    </div>
+
+    <!-- Session Stats -->
+    <div class="session-info">
+      <div class="session-stat">
+        <div class="session-num" id="sessionCount">0</div>
+        <div class="session-label">Sessions</div>
+      </div>
+      <div class="session-stat">
+        <div class="session-num" id="totalMinutes">0</div>
+        <div class="session-label">Min Focused</div>
+      </div>
+      <div class="session-stat">
+        <div class="session-num" id="streak">0</div>
+        <div class="session-label">Streak</div>
+      </div>
+    </div>
+
+  </div>
+  
+  <div class="ad-space">[ AdSense Ad ]</div>
+</div>
+
+<script>
+// ===== Timer State =====
+const CIRCUMFERENCE = 2 * Math.PI * 120; // ~754
+const progressRing = document.getElementById('progressRing');
+const timerDisplay = document.getElementById('timerDisplay');
+const timerLabel = document.getElementById('timerLabel');
+const btnPlay = document.getElementById('btnPlay');
+const sessionCountEl = document.getElementById('sessionCount');
+const totalMinEl = document.getElementById('totalMinutes');
+const streakEl = document.getElementById('streak');
+
+let totalSeconds = 25 * 60;
+let remainingSeconds = totalSeconds;
+let isRunning = false;
+let intervalId = null;
+let currentMode = 'focus';
+let sessions = parseInt(localStorage.getItem('ft_sessions') || 0);
+let totalMin = parseInt(localStorage.getItem('ft_minutes') || 0);
+let streak = parseInt(localStorage.getItem('ft_streak') || 0);
+let lastDate = localStorage.getItem('ft_date') || '';
+let currentSound = 'none';
+let audioCtx = null;
+let noiseNode = null;
+let gainNode = null;
+
+progressRing.style.strokeDasharray = CIRCUMFERENCE;
+progressRing.style.strokeDashoffset = '0';
+
+// ===== Initialize =====
+function init() {
+  updateDisplay();
+  updateStats();
+  document.getElementById('volumeSlider').style.display = 'none';
+  
+  // Mode switch
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (isRunning) return;
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentMode = btn.dataset.label.toLowerCase().includes('focus') ? 'focus' : 'break';
+      totalSeconds = parseInt(btn.dataset.min) * 60;
+      remainingSeconds = totalSeconds;
+      updateDisplay();
+      progressRing.style.strokeDashoffset = '0';
+      progressRing.classList.toggle('break', currentMode === 'break');
+      timerLabel.textContent = 'ready';
+    });
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space') { e.preventDefault(); toggleTimer(); }
+    if (e.code === 'KeyR') resetTimer();
+  });
+
+  // Restore sound
+  const saved = localStorage.getItem('ft_sound');
+  if (saved) {
+    const btn = document.querySelector(`[data-sound="${saved}"]`);
+    if (btn) setSound(saved, btn);
+  }
+  
+  // Daily streak
+  const today = new Date().toDateString();
+  if (lastDate !== today) {
+    if (lastDate) {
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+      streak = (lastDate === yesterday) ? streak : 0;
+    }
+    lastDate = today;
+    localStorage.setItem('ft_date', lastDate);
+  }
+}
+
+// ===== Timer Logic =====
+function toggleTimer() {
+  if (isRunning) {
+    pauseTimer();
+  } else {
+    startTimer();
+  }
+}
+
+function startTimer() {
+  if (remainingSeconds <= 0) {
+    remainingSeconds = totalSeconds;
+    updateDisplay();
+    progressRing.style.strokeDashoffset = '0';
+  }
+  isRunning = true;
+  btnPlay.textContent = '⏸';
+  btnPlay.classList.add('paused');
+  timerLabel.textContent = currentMode === 'focus' ? 'focused' : 'relaxing';
+  
+  intervalId = setInterval(() => {
+    remainingSeconds--;
+    updateDisplay();
+    
+    const progress = ((totalSeconds - remainingSeconds) / totalSeconds) * CIRCUMFERENCE;
+    progressRing.style.strokeDashoffset = progress;
+    
+    if (remainingSeconds <= 0) {
+      completeSession();
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  isRunning = false;
+  clearInterval(intervalId);
+  btnPlay.textContent = '▶';
+  btnPlay.classList.remove('paused');
+  timerLabel.textContent = 'paused';
+}
+
+function resetTimer() {
+  isRunning = false;
+  clearInterval(intervalId);
+  remainingSeconds = totalSeconds;
+  btnPlay.textContent = '▶';
+  btnPlay.classList.remove('paused');
+  progressRing.style.strokeDashoffset = '0';
+  timerLabel.textContent = 'ready';
+  updateDisplay();
+}
+
+function skipTimer() {
+  if (isRunning) clearInterval(intervalId);
+  isRunning = false;
+  remainingSeconds = 0;
+  btnPlay.textContent = '▶';
+  btnPlay.classList.remove('paused');
+  progressRing.style.strokeDashoffset = CIRCUMFERENCE;
+  updateDisplay();
+  completeSession();
+}
+
+function completeSession() {
+  clearInterval(intervalId);
+  isRunning = false;
+  btnPlay.textContent = '▶';
+  btnPlay.classList.remove('paused');
+  progressRing.style.strokeDashoffset = CIRCUMFERENCE;
+  timerLabel.textContent = 'done!';
+  
+  // Stats
+  if (currentMode === 'focus') {
+    sessions++;
+    totalMin += Math.floor(totalSeconds / 60);
+    streak++;
+    localStorage.setItem('ft_sessions', sessions);
+    localStorage.setItem('ft_minutes', totalMin);
+    localStorage.setItem('ft_streak', streak);
+    updateStats();
+  }
+  
+  // Notification
+  if (Notification.permission === 'granted') {
+    new Notification('FlowTime', { 
+      body: currentMode === 'focus' ? '🎉 Focus session complete! Take a break.' : '☕ Break over. Ready to focus?',
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⏰</text></svg>'
+    });
+  }
+  
+  // Sound chime
+  playChime();
+  
+  // Reset for next
+  remainingSeconds = totalSeconds;
+  setTimeout(() => {
+    updateDisplay();
+    progressRing.style.strokeDashoffset = '0';
+    timerLabel.textContent = 'ready';
+  }, 1000);
+}
+
+function playChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [523.25, 659.25, 783.99].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.15 + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.15);
+      osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+    });
+  } catch(e) {}
+}
+
+function updateDisplay() {
+  const mins = Math.floor(remainingSeconds / 60);
+  const secs = remainingSeconds % 60;
+  timerDisplay.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+}
+
+function updateStats() {
+  sessionCountEl.textContent = sessions;
+  totalMinEl.textContent = totalMin;
+  streakEl.textContent = streak;
+}
+
+// ===== Ambient Sound (Web Audio API noise generation) =====
+function setSound(type, btn) {
+  document.querySelectorAll('.sound-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentSound = type;
+  localStorage.setItem('ft_sound', type);
+  
+  // Stop previous
+  if (noiseNode) { noiseNode.disconnect(); noiseNode = null; }
+  if (audioCtx) { audioCtx.close(); audioCtx = null; }
+  
+  const volSlider = document.getElementById('volumeSlider');
+  
+  if (type === 'none') {
+    volSlider.style.display = 'none';
+    return;
+  }
+  
+  volSlider.style.display = 'block';
+  
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    gainNode = audioCtx.createGain();
+    gainNode.gain.value = volSlider.value / 100 * 0.3;
+    gainNode.connect(audioCtx.destination);
+    
+    // Generate noise based on type
+    const bufferSize = 2 * audioCtx.sampleRate;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    switch(type) {
+      case 'rain':
+        // Pink-ish noise for rain
+        let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          b0 = 0.99886 * b0 + white * 0.0555179;
+          b1 = 0.99332 * b1 + white * 0.0750759;
+          b2 = 0.96900 * b2 + white * 0.1538520;
+          b3 = 0.86650 * b3 + white * 0.3104856;
+          b4 = 0.55000 * b4 + white * 0.5329522;
+          b5 = -0.7616 * b5 - white * 0.0168980;
+          data[i] = (b0+b1+b2+b3+b4+b5+b6+white*0.5362) * 0.11;
+          b6 = white * 0.115926;
+          // Add random "drop" sounds
+          if (Math.random() < 0.003) data[i] += (Math.random() - 0.5) * 0.3;
+        }
+        break;
+      case 'forest':
+        // Softer noise + bird-like chirps
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * 0.04;
+          if (Math.random() < 0.0008) {
+            const freq = 2000 + Math.random() * 3000;
+            const dur = Math.floor(0.02 * audioCtx.sampleRate);
+            for (let j = 0; j < dur && (i+j) < bufferSize; j++) {
+              data[i+j] += Math.sin(2*Math.PI*freq*j/audioCtx.sampleRate) * 0.08 * (1 - j/dur);
+            }
+          }
+        }
+        break;
+      case 'ocean':
+        // Slow low-frequency noise
+        let lf = 0;
+        for (let i = 0; i < bufferSize; i++) {
+          lf = lf * 0.98 + (Math.random() * 2 - 1) * 0.02;
+          data[i] = lf * 0.5 + Math.sin(i * 0.0003) * 0.15;
+        }
+        break;
+      case 'cafe':
+        // Brown noise + random chatter
+        let last = 0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          last = (last + 0.02 * white) / 1.02;
+          data[i] = last * 0.5;
+          if (Math.random() < 0.002) data[i] += (Math.random() - 0.5) * 0.2;
+        }
+        break;
+    }
+    
+    noiseNode = audioCtx.createBufferSource();
+    noiseNode.buffer = buffer;
+    noiseNode.loop = true;
+    noiseNode.connect(gainNode);
+    noiseNode.start();
+  } catch(e) {
+    console.log('Audio not supported');
+  }
+}
+
+function setVolume(val) {
+  if (gainNode) {
+    gainNode.gain.value = val / 100 * 0.3;
+  }
+}
+
+// ===== Request notification permission =====
+if (Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
+// ===== Init =====
+init();
+</script>
+</body>
+</html>
