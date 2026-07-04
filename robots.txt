@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://toolify.tools/sitemap.xml
