@@ -234,7 +234,7 @@ body {
 <div class="bg-overlay"></div>
 
 <!-- Settings -->
-<button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" title="Settings">&#9881;</button>
+<button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" title="Settings">鈿欙笍</button>
 <div class="settings-panel" id="settingsPanel">
   <h3>Settings</h3>
   <div class="setting-row">
@@ -257,8 +257,8 @@ body {
 
 <!-- Homepage banner -->
 <div class="homepage-banner" id="homepageBanner" onclick="this.classList.remove('show')">
-  Tip: Set this page as your browser homepage for daily inspiration!
-  <button class="close-banner" onclick="event.stopPropagation();document.getElementById('homepageBanner').classList.remove('show');localStorage.setItem('db_banner_hidden','1')">X</button>
+  馃挕 Tip: Set this page as your browser homepage for daily inspiration!
+  <button class="close-banner" onclick="event.stopPropagation();document.getElementById('homepageBanner').classList.remove('show');localStorage.setItem('db_banner_hidden','1')">鉁?/button>
 </div>
 
 <div class="dashboard">
@@ -276,11 +276,11 @@ body {
   <div class="search-wrap">
     <div class="search-box">
       <select class="search-engine" id="searchEngine">
-        <option value="https://www.google.com/search?q=">Google</option>
-        <option value="https://www.bing.com/search?q=">Bing</option>
-        <option value="https://www.baidu.com/s?wd=">Baidu</option>
-        <option value="https://search.bilibili.com/all?keyword=">Bilibili</option>
-        <option value="https://www.youtube.com/results?search_query=">YouTube</option>
+        <option value="https://www.google.com/search?q=">馃攳 Google</option>
+        <option value="https://www.bing.com/search?q=">馃敺 Bing</option>
+        <option value="https://www.baidu.com/s?wd=">馃敹 鐧惧害</option>
+        <option value="https://search.bilibili.com/all?keyword=">馃摵 B绔?/option>
+        <option value="https://www.youtube.com/results?search_query=">鈻讹笍 YouTube</option>
       </select>
       <input type="text" class="search-input" id="searchInput" placeholder="Search the web..." onkeydown="if(event.key==='Enter')doSearch()">
       <button class="search-btn" onclick="doSearch()">鈫?/button>
@@ -305,8 +305,8 @@ body {
             <button class="focus-btn" data-min="5" onclick="setFocusMode(5,this)">5m</button>
           </div>
           <div class="focus-controls">
-            <button class="focus-btn primary" id="focusPlayBtn" onclick="toggleFocus()">Start</button>
-            <button class="focus-btn" onclick="resetFocus()">Reset</button>
+            <button class="focus-btn primary" id="focusPlayBtn" onclick="toggleFocus()">鈻?Start</button>
+            <button class="focus-btn" onclick="resetFocus()">鈫?/button>
           </div>
         </div>
       </div>
@@ -338,7 +338,7 @@ body {
     <div class="bento-card col-2">
       <div class="card-title"><span class="dot"></span> Quick Links</div>
       <div class="quick-links">
-        <a href="#" class="quick-link" onclick="editLinks()">Edit</a>
+        <a href="#" class="quick-link" onclick="editLinks()">鉁忥笍 Edit</a>
         <span id="quickLinksContainer"></span>
       </div>
     </div>
@@ -412,8 +412,8 @@ function updateClock() {
   // Countdown to Friday
   const dow = now.getDay();
   const daysUntilFriday = dow <= 5 ? 5 - dow : 7 - dow + 5;
-  document.getElementById('countdownDays').textContent = daysUntilFriday || '!!';
-  document.getElementById('countdownLabel').textContent = daysUntilFriday === 0 ? "It's Friday!" : 'days until Friday';
+  document.getElementById('countdownDays').textContent = daysUntilFriday || '馃帀';
+  document.getElementById('countdownLabel').textContent = daysUntilFriday === 0 ? "It's Friday! 馃帀" : 'days until Friday';
 }
 updateClock();
 setInterval(updateClock, 10000);
@@ -426,11 +426,11 @@ async function fetchWeather() {
     const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`);
     const data = await resp.json();
     const temp = Math.round(data.current.temperature_2m);
-    const icons = { 0:'Clear',1:'P Cloudy',2:'Cloudy',3:'Overcast',45:'Fog',51:'Drizzle',61:'Rain',71:'Snow',80:'Showers',95:'Storm' };
+    const icons = { 0:'鈽€锔?,1:'馃尋锔?,2:'鉀?,3:'鈽侊笍',45:'馃尗锔?,51:'馃對锔?,61:'馃導锔?,71:'馃尐锔?,80:'馃對锔?,95:'鉀堬笍' };
     const city = data.timezone?.split('/')[1] || '';
-    document.getElementById('weatherBar').innerHTML = `${icons[data.current.weather_code]||'N/A'} &middot; ${temp}&deg;C ${city}`;
+    document.getElementById('weatherBar').innerHTML = `<span class="weather-icon">${icons[data.current.weather_code]||'馃尅锔?}</span> ${temp}掳C ${city}`;
   } catch(e) {
-    document.getElementById('weatherBar').textContent = 'Weather unavailable';
+    document.getElementById('weatherBar').textContent = '馃尋锔?Weather';
   }
 }
 fetchWeather();
@@ -548,11 +548,11 @@ function toggleFocus() {
   if (focusRunning) {
     clearInterval(focusInterval);
     focusRunning = false;
-    document.getElementById('focusPlayBtn').textContent = 'Resume';
+    document.getElementById('focusPlayBtn').textContent = '鈻?Resume';
   } else {
     if (focusRemaining <= 0) { focusRemaining = focusTotal; updateFocusDisplay(); }
     focusRunning = true;
-    document.getElementById('focusPlayBtn').textContent = 'Pause';
+    document.getElementById('focusPlayBtn').textContent = '鈴?Pause';
     focusInterval = setInterval(() => {
       focusRemaining--;
       updateFocusDisplay();
@@ -561,13 +561,13 @@ function toggleFocus() {
       if (focusRemaining <= 0) {
         clearInterval(focusInterval);
         focusRunning = false;
-        document.getElementById('focusPlayBtn').textContent = 'Start';
+        document.getElementById('focusPlayBtn').textContent = '鈻?Start';
         focusSessionsToday++;
         SS('focus_sessions_today', focusSessionsToday);
         updateFocusDisplay();
         playChime();
         if (Notification.permission === 'granted') {
-          new Notification('Focus Complete!', { body: 'Great job! Session completed.' });
+          new Notification('Focus Complete! 馃帀', { body: 'Great job! Session completed.', icon: '鈴? });
         }
       }
     }, 1000);
@@ -578,7 +578,7 @@ function resetFocus() {
   clearInterval(focusInterval);
   focusRunning = false;
   focusRemaining = focusTotal;
-  document.getElementById('focusPlayBtn').textContent = 'Start';
+  document.getElementById('focusPlayBtn').textContent = '鈻?Start';
   document.getElementById('focusProgressBar').style.width = '0%';
   updateFocusDisplay();
 }
