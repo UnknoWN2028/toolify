@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DayBoard — Your Daily Dashboard</title>
-<meta name="description" content="A beautiful daily dashboard. Weather, clock, to-do list, daily quote, and quick search. Set as your browser homepage.">
-<meta name="robots" content="index, follow">
+<title>DayBoard 鈥?Your Daily Dashboard</title>
+<meta name="description" content="A beautiful daily dashboard. Weather, clock, to-do list, daily quote, holiday countdown, and quick search. Set as your browser homepage.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -39,279 +38,170 @@ body {
   overflow-x: hidden;
 }
 
+/* Particle canvas */
+#particleCanvas {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+}
+
 /* Background */
-.bg-image {
-  position: fixed; inset: 0; z-index: 0;
-  background-size: cover; background-position: center;
-  opacity: 0.15; transition: opacity 1s;
-}
-.bg-overlay {
-  position: fixed; inset: 0; z-index: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(196,163,90,0.08) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 80%, rgba(100,140,200,0.06) 0%, transparent 50%);
-}
+.bg-image { position: fixed; inset: 0; z-index: 0; background-size: cover; background-position: center; opacity: 0.15; transition: opacity 1s; }
+.bg-overlay { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at 50% 0%, var(--accent-glow) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(100,140,200,0.04) 0%, transparent 50%); }
 
 /* Layout */
-.dashboard {
-  position: relative; z-index: 1;
-  width: 100%; max-width: 900px;
-  min-height: 100vh;
-  display: flex; flex-direction: column;
-  justify-content: center;
-  padding: 40px 32px;
-}
+.dashboard { position: relative; z-index: 1; width: 100%; max-width: 920px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 40px 32px; }
 
-/* Hero section: Time + Quote */
-.hero-section {
-  text-align: center;
-  margin-bottom: 48px;
-  animation: fadeUp 0.8s var(--ease) forwards;
+/* Settings gear */
+.settings-btn {
+  position: fixed; top: 20px; right: 20px; z-index: 10;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-secondary); font-size: 1.2rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s; backdrop-filter: blur(10px);
 }
+.settings-btn:hover { background: var(--surface-hover); color: var(--text); transform: rotate(60deg); }
+.settings-panel {
+  position: fixed; top: 70px; right: 20px; z-index: 10;
+  background: rgba(13,15,20,0.95); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  backdrop-filter: blur(30px); min-width: 220px;
+  display: none; animation: fadeUp 0.3s var(--ease);
+}
+.settings-panel.open { display: block; }
+.settings-panel h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 12px; }
+.setting-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.setting-row label { font-size: 0.85rem; color: var(--text-secondary); flex: 1; }
+.setting-row input[type="text"] {
+  width: 130px; padding: 6px 10px; background: var(--surface-hover); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-family: 'Outfit',sans-serif; font-size: 0.85rem; outline: none;
+}
+.setting-row input[type="text"]:focus { border-color: var(--accent); }
 
-.time-display {
-  font-family: 'Outfit', sans-serif;
-  font-size: clamp(3.5rem, 10vw, 7rem);
-  font-weight: 200;
-  letter-spacing: -3px;
-  color: var(--text);
-  line-height: 1;
-  margin-bottom: 4px;
+/* Homepage banner */
+.homepage-banner {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
+  background: var(--accent); color: #0d0f14;
+  text-align: center; padding: 12px 20px;
+  font-size: 0.85rem; font-weight: 600;
+  display: none; animation: fadeUp 0.5s var(--ease);
+  cursor: pointer;
 }
-.time-display .ampm {
-  font-size: 0.35em;
-  font-weight: 300;
-  letter-spacing: 0;
-  margin-left: 8px;
-  color: var(--text-secondary);
-}
+.homepage-banner.show { display: block; }
+.homepage-banner .close-banner { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #0d0f14; font-size: 1.2rem; cursor: pointer; opacity: 0.6; }
 
-.date-display {
-  font-size: 1.15rem;
-  color: var(--text-secondary);
-  font-weight: 400;
-  letter-spacing: 0.5px;
-  margin-bottom: 24px;
-}
+/* Hero */
+.hero-section { text-align: center; margin-bottom: 40px; animation: fadeUp 0.8s var(--ease) forwards; }
+.time-display { font-family: 'Outfit', sans-serif; font-size: clamp(3.5rem, 10vw, 6.5rem); font-weight: 200; letter-spacing: -3px; line-height: 1; margin-bottom: 2px; }
+.time-display .ampm { font-size: 0.33em; font-weight: 300; letter-spacing: 0; margin-left: 6px; color: var(--text-secondary); }
+.date-display { font-size: 1.1rem; color: var(--text-secondary); font-weight: 400; letter-spacing: 0.5px; margin-bottom: 20px; }
+.greeting { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 3vw, 2.2rem); font-style: italic; color: var(--accent); font-weight: 400; margin-bottom: 6px; }
+.quote-text { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--text-secondary); max-width: 500px; margin: 0 auto; line-height: 1.5; opacity: 0.7; }
 
-.greeting {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.5rem, 3vw, 2.2rem);
-  font-style: italic;
-  color: var(--accent);
-  font-weight: 400;
-  margin-bottom: 8px;
+/* Weather bar */
+.weather-bar { 
+  display: flex; align-items: center; justify-content: center; gap: 6px; 
+  margin-top: 8px; font-size: 0.9rem; color: var(--text-secondary);
 }
-
-.quote-text {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  max-width: 500px;
-  margin: 0 auto;
-  line-height: 1.5;
-  opacity: 0.7;
-}
-
-/* Weather */
-.weather-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 8px;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-.weather-icon { font-size: 1.5rem; }
+.weather-icon-svg { width: 24px; height: 24px; flex-shrink: 0; }
 
 /* Search */
-.search-wrap {
-  margin: 0 auto 48px;
-  max-width: 560px;
-  width: 100%;
-  animation: fadeUp 0.8s var(--ease) 0.15s forwards;
-  opacity: 0;
-}
-.search-box {
-  display: flex;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 50px;
-  overflow: hidden;
-  backdrop-filter: blur(20px);
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-.search-box:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 24px var(--accent-glow);
-}
-.search-engine {
-  padding: 14px 8px 14px 18px;
-  background: transparent;
-  border: none;
-  color: var(--text);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.85rem;
-  cursor: pointer;
-  outline: none;
-  min-width: 100px;
-  border-right: 1px solid var(--border);
-}
+.search-wrap { margin: 0 auto 44px; max-width: 560px; width: 100%; animation: fadeUp 0.8s var(--ease) 0.15s forwards; opacity: 0; }
+.search-box { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 50px; overflow: hidden; backdrop-filter: blur(20px); transition: all 0.3s; }
+.search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 24px var(--accent-glow); }
+.search-engine { padding: 13px 8px 13px 16px; background: transparent; border: none; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.82rem; cursor: pointer; outline: none; min-width: 95px; border-right: 1px solid var(--border); }
 .search-engine option { background: #1a1d26; color: var(--text); }
-.search-input {
-  flex: 1;
-  padding: 14px 18px;
-  background: transparent;
-  border: none;
-  color: var(--text);
-  font-family: 'Outfit', sans-serif;
-  font-size: 1rem;
-  outline: none;
-}
+.search-input { flex: 1; padding: 13px 16px; background: transparent; border: none; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.95rem; outline: none; }
 .search-input::placeholder { color: var(--text-muted); }
-.search-btn {
-  padding: 14px 22px;
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: color 0.2s;
-}
+.search-btn { padding: 13px 20px; background: transparent; border: none; color: var(--text-secondary); font-size: 1.1rem; cursor: pointer; transition: color 0.2s; }
 .search-btn:hover { color: var(--accent); }
 
 /* Bento Grid */
-.bento-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 160px;
-  gap: 12px;
-  animation: fadeUp 0.8s var(--ease) 0.3s forwards;
-  opacity: 0;
-}
-
-.bento-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  backdrop-filter: blur(20px);
-  transition: all 0.3s var(--ease);
-  overflow: hidden;
-  position: relative;
-}
-.bento-card:hover {
-  background: var(--surface-hover);
-  border-color: rgba(255,255,255,0.12);
-  transform: translateY(-2px);
-}
+.bento-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 160px; gap: 12px; animation: fadeUp 0.8s var(--ease) 0.3s forwards; opacity: 0; }
+.bento-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; backdrop-filter: blur(20px); transition: all 0.3s var(--ease); overflow: hidden; position: relative; }
+.bento-card:hover { background: var(--surface-hover); border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
 .bento-card.col-2 { grid-column: span 2; }
 .bento-card.row-2 { grid-row: span 2; }
+.card-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.card-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 
-.card-title {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-muted);
-  font-weight: 600;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.card-title .dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-/* Todo card */
+/* Todo */
 .todo-list { list-style: none; max-height: 80px; overflow-y: auto; }
-.todo-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 0; font-size: 0.85rem; color: var(--text-secondary);
-  cursor: pointer; transition: color 0.2s;
-}
+.todo-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 0.82rem; color: var(--text-secondary); cursor: pointer; transition: color 0.2s; }
 .todo-item:hover { color: var(--text); }
 .todo-item.done { text-decoration: line-through; opacity: 0.4; }
 .todo-check { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--text-muted); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; transition: all 0.2s; }
 .todo-item.done .todo-check { background: var(--accent); border-color: var(--accent); }
-.todo-input {
-  width: 100%; padding: 6px 0; background: transparent; border: none; border-bottom: 1px solid var(--border);
-  color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.8rem; outline: none; margin-top: 4px;
-}
+.todo-input { width: 100%; padding: 6px 0; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.8rem; outline: none; margin-top: 4px; }
 .todo-input::placeholder { color: var(--text-muted); }
 
-/* Links card */
+/* Links */
 .quick-links { display: flex; flex-wrap: wrap; gap: 8px; }
-.quick-link {
-  padding: 6px 14px; border-radius: 20px;
-  background: rgba(255,255,255,0.04);
-  color: var(--text-secondary); text-decoration: none;
-  font-size: 0.8rem; transition: all 0.2s;
-  border: 1px solid transparent;
-}
+.quick-link { padding: 6px 14px; border-radius: 20px; background: rgba(255,255,255,0.04); color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; transition: all 0.2s; border: 1px solid transparent; }
 .quick-link:hover { background: var(--surface-hover); color: var(--text); border-color: var(--border); }
 
-/* Countdown card */
-.countdown-num {
-  font-size: 2.5rem; font-weight: 300; letter-spacing: -1px;
-  color: var(--accent); line-height: 1;
-}
-.countdown-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+/* Holiday countdown */
+.holiday-name { font-size: 0.85rem; color: var(--text); font-weight: 500; margin-bottom: 2px; }
+.holiday-days { font-size: 2.5rem; font-weight: 300; letter-spacing: -1px; color: var(--accent); line-height: 1; }
+.holiday-date { font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; }
 
 /* Stats */
-.stat-value {
-  font-size: 2rem; font-weight: 500; letter-spacing: -1px;
-  color: var(--text); line-height: 1;
-}
+.stat-value { font-size: 2rem; font-weight: 500; letter-spacing: -1px; line-height: 1; }
 .stat-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+.stat-mini { text-align: center; }
+.stat-mini-num { font-size: 1.3rem; font-weight: 500; color: var(--text); }
+.stat-mini-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
-/* Focus button */
-.focus-link {
-  display: inline-flex; align-items: center; gap: 6px;
-  margin-top: 8px; padding: 8px 16px;
-  background: var(--accent); color: #0d0f14;
-  border-radius: 20px; text-decoration: none;
-  font-size: 0.8rem; font-weight: 600;
-  transition: all 0.2s;
-}
-.focus-link:hover { transform: scale(1.03); box-shadow: 0 0 20px var(--accent-glow); }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* Animations */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 768px) {
   .dashboard { padding: 32px 16px; }
-  .bento-grid {
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 140px;
-  }
+  .bento-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; }
   .bento-card.col-2 { grid-column: span 2; }
   .time-display { font-size: 3rem; }
 }
 @media (max-width: 480px) {
   .bento-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
-  .bento-card.col-2 { grid-column: span 1; }
+  .bento-card.col-2, .bento-card.row-2 { grid-column: span 1; grid-row: span 1; }
   .time-display { font-size: 2.5rem; }
 }
 </style>
 </head>
 <body>
 
+<canvas id="particleCanvas"></canvas>
 <div class="bg-image" id="bgImage"></div>
 <div class="bg-overlay"></div>
+
+<!-- Settings -->
+<button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" title="Settings">&#9881;</button>
+<div class="settings-panel" id="settingsPanel">
+  <h3>Settings</h3>
+  <div class="setting-row">
+    <label>Your Name</label>
+    <input type="text" id="nameInput" placeholder="Your name" onchange="saveName()" maxlength="20">
+  </div>
+  <div style="font-size:0.7rem;color:var(--text-muted);margin-top:12px;">
+    Set as homepage: <strong>chrome://settings</strong> &rarr; On startup &rarr; Open a specific page &rarr; Paste URL
+  </div>
+</div>
+
+<!-- Homepage banner -->
+<div class="homepage-banner" id="homepageBanner" onclick="this.classList.remove('show')">
+  Tip: Set this page as your browser homepage for daily inspiration!
+  <button class="close-banner" onclick="event.stopPropagation();document.getElementById('homepageBanner').classList.remove('show');localStorage.setItem('db_banner_hidden','1')">X</button>
+</div>
 
 <div class="dashboard">
 
   <!-- Hero -->
   <div class="hero-section">
     <div class="greeting" id="greeting">Good morning</div>
-    <div class="time-display" id="timeDisplay">00:00</div>
+    <div class="time-display" id="timeDisplay"></div>
     <div class="date-display" id="dateDisplay"></div>
-    <div class="weather-bar" id="weatherBar">Loading weather...</div>
+    <div class="weather-bar" id="weatherBar">Loading...</div>
     <div class="quote-text" id="quoteText"></div>
   </div>
 
@@ -319,55 +209,58 @@ body {
   <div class="search-wrap">
     <div class="search-box">
       <select class="search-engine" id="searchEngine">
-        <option value="https://www.google.com/search?q=">🔍 Google</option>
-        <option value="https://www.bing.com/search?q=">🔷 Bing</option>
-        <option value="https://www.baidu.com/s?wd=">🔶 百度</option>
-        <option value="https://search.bilibili.com/all?keyword=">📺 B站</option>
-        <option value="https://www.youtube.com/results?search_query=">▶️ YouTube</option>
+        <option value="https://www.google.com/search?q=">Google</option>
+        <option value="https://www.bing.com/search?q=">Bing</option>
+        <option value="https://www.baidu.com/s?wd=">Baidu</option>
+        <option value="https://search.bilibili.com/all?keyword=">Bilibili</option>
+        <option value="https://www.youtube.com/results?search_query=">YouTube</option>
       </select>
       <input type="text" class="search-input" id="searchInput" placeholder="Search the web..." onkeydown="if(event.key==='Enter')doSearch()">
-      <button class="search-btn" onclick="doSearch()">→</button>
+      <button class="search-btn" onclick="doSearch()">&rarr;</button>
     </div>
   </div>
 
   <!-- Bento Grid -->
   <div class="bento-grid">
 
-    <!-- Quick Links -->
+    <!-- Holiday Countdown -->
     <div class="bento-card col-2">
-      <div class="card-title"><span class="dot"></span> Quick Links</div>
-      <div class="quick-links">
-        <a href="#" class="quick-link" onclick="localStorage.setItem('db_links',prompt('Edit links (comma-separated URLs|names):',localStorage.getItem('db_links')||''));location.reload()">✏️ Edit</a>
-        <span id="quickLinksContainer"></span>
+      <div class="card-title"><span class="dot"></span> Next Holiday</div>
+      <div style="display:flex;align-items:center;gap:20px;">
+        <div>
+          <div class="holiday-name" id="holidayName"></div>
+          <div class="holiday-days" id="holidayDays"></div>
+          <div class="holiday-date" id="holidayDate"></div>
+        </div>
+        <div style="font-size:3rem;opacity:0.3;" id="holidayEmoji"></div>
       </div>
     </div>
 
     <!-- To-Do -->
     <div class="bento-card row-2">
-      <div class="card-title"><span class="dot"></span> Today's Tasks</div>
+      <div class="card-title"><span class="dot"></span> Tasks</div>
       <ul class="todo-list" id="todoList"></ul>
       <input type="text" class="todo-input" id="todoInput" placeholder="+ Add task..." onkeydown="if(event.key==='Enter')addTodo()">
     </div>
 
-    <!-- Year Progress -->
+    <!-- Stats -->
     <div class="bento-card">
-      <div class="card-title"><span class="dot"></span> Year Progress</div>
-      <div class="stat-value" id="yearPercent">0%</div>
-      <div class="stat-label">2026 is flying by</div>
+      <div class="card-title"><span class="dot"></span> Stats</div>
+      <div class="stat-grid">
+        <div class="stat-mini"><div class="stat-mini-num" id="statTotal">0</div><div class="stat-mini-label">Total Visits</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="statToday">0</div><div class="stat-mini-label">Today</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="statStreak">0</div><div class="stat-mini-label">Day Streak</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="statYear">0%</div><div class="stat-mini-label">Year Done</div></div>
+      </div>
     </div>
 
-    <!-- Countdown -->
+    <!-- Quick Links -->
     <div class="bento-card">
-      <div class="card-title"><span class="dot"></span> Next Weekend</div>
-      <div class="countdown-num" id="countdownDays">0</div>
-      <div class="countdown-label">days until Friday</div>
-    </div>
-
-    <!-- Focus -->
-    <div class="bento-card">
-      <div class="card-title"><span class="dot"></span> Focus Mode</div>
-      <div style="font-size:0.85rem;color:var(--text-secondary)">Start a deep work session</div>
-      <a href="tools/focus-timer.html" class="focus-link">⏱️ Start Focus</a>
+      <div class="card-title"><span class="dot"></span> Links</div>
+      <div class="quick-links">
+        <a href="#" class="quick-link" onclick="editLinks()">Edit</a>
+        <span id="quickLinksContainer"></span>
+      </div>
     </div>
 
   </div>
@@ -375,6 +268,40 @@ body {
 </div>
 
 <script>
+// ===== Storage =====
+const S = (k,d) => { try { const v = localStorage.getItem('db_'+k); return v !== null ? JSON.parse(v) : d; } catch(e) { return d; } };
+const SS = (k,v) => localStorage.setItem('db_'+k, JSON.stringify(v));
+
+// ===== User Name =====
+const userName = S('name', '');
+document.getElementById('nameInput').value = userName;
+function saveName() {
+  const name = document.getElementById('nameInput').value.trim();
+  SS('name', name);
+  updateGreeting();
+}
+function updateGreeting() {
+  const name = S('name', '');
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting').textContent = name ? `${g}, ${name}` : g;
+}
+
+// ===== Settings =====
+function toggleSettings() {
+  document.getElementById('settingsPanel').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.settings-btn') && !e.target.closest('.settings-panel')) {
+    document.getElementById('settingsPanel').classList.remove('open');
+  }
+});
+
+// ===== Homepage banner =====
+if (!S('banner_hidden', false) && !S('name', '')) {
+  setTimeout(() => document.getElementById('homepageBanner').classList.add('show'), 5000);
+}
+
 // ===== Clock =====
 function updateClock() {
   const now = new Date();
@@ -382,95 +309,119 @@ function updateClock() {
   const ampm = h >= 12 ? 'PM' : 'AM';
   const h12 = h % 12 || 12;
   document.getElementById('timeDisplay').innerHTML = `${h12}:${String(m).padStart(2,'0')}<span class="ampm">${ampm}</span>`;
-  
-  // Greeting
-  let g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  document.getElementById('greeting').textContent = g;
-  
-  // Date
+  updateGreeting();
   const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-US', opts);
   
   // Year progress
   const start = new Date(now.getFullYear(), 0, 1);
   const end = new Date(now.getFullYear() + 1, 0, 1);
-  const pct = ((now - start) / (end - start) * 100).toFixed(1);
-  document.getElementById('yearPercent').textContent = pct + '%';
+  document.getElementById('statYear').textContent = ((now - start) / (end - start) * 100).toFixed(1) + '%';
   
-  // Countdown to Friday
-  const dayOfWeek = now.getDay();
-  const daysUntilFriday = dayOfWeek <= 5 ? 5 - dayOfWeek : 7 - dayOfWeek + 5;
-  document.getElementById('countdownDays').textContent = daysUntilFriday || '🎉';
-  if (daysUntilFriday === 0) {
-    document.querySelector('#countdownDays').nextElementSibling.textContent = "It's Friday! 🎉";
-  }
+  // Holiday countdown
+  updateHolidayCountdown(now);
+  
+  // Stats
+  updateStats(now);
 }
 updateClock();
-setInterval(updateClock, 10000);
+setInterval(updateClock, 60000);
 
-// ===== Weather (Open-Meteo free API) =====
+// ===== Holiday Countdown (Chinese holidays) =====
+function updateHolidayCountdown(now) {
+  const year = now.getFullYear();
+  const holidays = [
+    { name: "New Year's Day", date: new Date(year, 0, 1), emoji: '&#127881;' },
+    { name: 'Chinese New Year', date: new Date(year, 1, 17), emoji: '&#129512;' },
+    { name: 'Qingming Festival', date: new Date(year, 3, 5), emoji: '&#127793;' },
+    { name: 'Labor Day', date: new Date(year, 4, 1), emoji: '&#128119;' },
+    { name: 'Dragon Boat Festival', date: new Date(year, 5, 19), emoji: '&#128675;' },
+    { name: 'Mid-Autumn Festival', date: new Date(year, 8, 25), emoji: '&#127766;' },
+    { name: 'National Day', date: new Date(year, 9, 1), emoji: '&#127386;' },
+  ];
+  
+  // If all holidays this year have passed, show New Year next year
+  let next = holidays.find(h => h.date > now);
+  if (!next) next = { name: "New Year's Day", date: new Date(year + 1, 0, 1), emoji: '&#127881;' };
+  
+  const diff = Math.ceil((next.date - now) / 86400000);
+  document.getElementById('holidayName').textContent = next.name;
+  document.getElementById('holidayDays').innerHTML = diff === 0 ? 'Today!' : diff + ' <span style="font-size:1rem">days</span>';
+  document.getElementById('holidayDate').textContent = next.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  document.getElementById('holidayEmoji').innerHTML = next.emoji;
+}
+
+// ===== Weather with SVG icons =====
+function getWeatherSVG(code) {
+  // Simple SVG weather icons
+  const svgs = {
+    0: '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="5" fill="#fbbf24" stroke="#f59e0b" stroke-width="1"/><line x1="12" y1="2" x2="12" y2="5" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="19" x2="12" y2="22" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="12" x2="5" y2="12" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><line x1="19" y1="12" x2="22" y2="12" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    1: '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="9" cy="8" r="4" fill="#fbbf24" stroke="#f59e0b" stroke-width="1"/><line x1="9" y1="1" x2="9" y2="3" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="13" x2="9" y2="15" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><path d="M15 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="#94a3b8" stroke="#64748b" stroke-width="1"/></svg>',
+    2: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M6 18a4 4 0 1 1 0-8 3.5 3.5 0 0 1 6.5-1 3 3 0 1 1 2 5H6z" fill="#94a3b8" stroke="#64748b" stroke-width="1"/></svg>',
+    3: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 19a5 5 0 1 1 0-10 4 4 0 0 1 7-1.5A4.5 4.5 0 0 1 18 10h1a3 3 0 0 1 0 6H4z" fill="#64748b" stroke="#475569" stroke-width="1"/></svg>',
+    45: '<svg viewBox="0 0 24 24" width="24" height="24"><line x1="3" y1="9" x2="9" y2="9" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="12" x2="14" y2="12" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="15" x2="17" y2="15" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/></svg>',
+    51: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 18a4 4 0 1 1 0-8" fill="#94a3b8" stroke="#64748b" stroke-width="1"/><line x1="8" y1="21" x2="8" y2="18" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="22" x2="12" y2="18" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    61: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 16a4 4 0 1 1 0-8" fill="#64748b" stroke="#475569" stroke-width="1"/><line x1="7" y1="20" x2="5" y2="16" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="21" x2="9" y2="16" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/><line x1="15" y1="20" x2="13" y2="16" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    71: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 16a4 4 0 1 1 0-8" fill="#64748b" stroke="#475569" stroke-width="1"/><circle cx="8" cy="19" r="1" fill="#e2e8f0"/><circle cx="10" cy="21" r="1.5" fill="#e2e8f0"/><circle cx="13" cy="18" r="1" fill="#e2e8f0"/></svg>',
+    80: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 16a4 4 0 1 1 0-8" fill="#64748b" stroke="#475569" stroke-width="1"/><line x1="7" y1="19" x2="5" y2="15" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="20" x2="9" y2="15" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/><line x1="15" y1="19" x2="14" y2="15" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    95: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 16a5 5 0 1 1 0-10" fill="#64748b" stroke="#475569" stroke-width="1"/><polygon points="12,3 13.5,8 11,5.5 13,10" fill="#fbbf24" stroke="#f59e0b" stroke-width="0.5"/></svg>',
+  };
+  return svgs[code] || svgs[3];
+}
+
 async function fetchWeather() {
   try {
-    // Try to get location
-    const pos = await new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
-    });
+    const pos = await new Promise((r, rej) => navigator.geolocation.getCurrentPosition(r, rej, { timeout: 5000 }));
     const { latitude: lat, longitude: lon } = pos.coords;
     const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`);
     const data = await resp.json();
     const temp = Math.round(data.current.temperature_2m);
-    const code = data.current.weather_code;
-    const icons = { 0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',71:'🌨️',80:'🌦️',95:'⛈️' };
-    const icon = icons[code] || '🌡️';
+    const svg = getWeatherSVG(data.current.weather_code);
     const city = data.timezone?.split('/')[1] || '';
-    document.getElementById('weatherBar').innerHTML = `<span class="weather-icon">${icon}</span> ${temp}°C ${city}`;
+    document.getElementById('weatherBar').innerHTML = `<span class="weather-icon-svg">${svg}</span> ${temp}&deg;C ${city}`;
   } catch(e) {
-    document.getElementById('weatherBar').textContent = '🌤️ Weather unavailable';
+    document.getElementById('weatherBar').innerHTML = '<span class="weather-icon-svg">' + getWeatherSVG(3) + '</span> Weather unavailable';
   }
 }
 fetchWeather();
 
 // ===== Daily Quote =====
 const quotes = [
-  '"The only way to do great work is to love what you do." — Steve Jobs',
-  '"It does not matter how slowly you go as long as you do not stop." — Confucius',
-  '"The future belongs to those who believe in the beauty of their dreams." — Eleanor Roosevelt',
-  '"Strive not to be a success, but rather to be of value." — Albert Einstein',
-  '"The best time to plant a tree was 20 years ago. The second best time is now." — Chinese Proverb',
-  '"Your time is limited, don\'t waste it living someone else\'s life." — Steve Jobs',
-  '"Everything you\'ve ever wanted is on the other side of fear." — George Addair',
-  '"The only impossible journey is the one you never begin." — Tony Robbins',
-  '"Do what you can, with what you have, where you are." — Theodore Roosevelt',
-  '"Success is not final, failure is not fatal: it is the courage to continue that counts." — Winston Churchill',
-  '"Act as if what you do makes a difference. It does." — William James',
-  '"What lies behind us and what lies before us are tiny matters compared to what lies within us." — Emerson',
-  '"The secret of getting ahead is getting started." — Mark Twain',
-  '"Don\'t watch the clock; do what it does. Keep going." — Sam Levenson',
-  '"Quality is not an act, it is a habit." — Aristotle',
+  '"The only way to do great work is to love what you do." 鈥?Steve Jobs',
+  '"It does not matter how slowly you go as long as you do not stop." 鈥?Confucius',
+  '"The future belongs to those who believe in the beauty of their dreams." 鈥?Eleanor Roosevelt',
+  '"Strive not to be a success, but rather to be of value." 鈥?Albert Einstein',
+  '"The best time to plant a tree was 20 years ago. The second best time is now." 鈥?Chinese Proverb',
+  '"Your time is limited, don\'t waste it living someone else\'s life." 鈥?Steve Jobs',
+  '"Everything you\'ve ever wanted is on the other side of fear." 鈥?George Addair',
+  '"The only impossible journey is the one you never begin." 鈥?Tony Robbins',
+  '"Do what you can, with what you have, where you are." 鈥?Theodore Roosevelt',
+  '"Success is not final, failure is not fatal: it is the courage to continue that counts." 鈥?Winston Churchill',
+  '"Act as if what you do makes a difference. It does." 鈥?William James',
+  '"The secret of getting ahead is getting started." 鈥?Mark Twain',
+  '"Believe you can and you\'re halfway there." 鈥?Theodore Roosevelt',
+  '"In the middle of difficulty lies opportunity." 鈥?Albert Einstein',
+  '"Start where you are. Use what you have. Do what you can." 鈥?Arthur Ashe',
+  '"It always seems impossible until it\'s done." 鈥?Nelson Mandela',
 ];
 const today = new Date().toDateString();
-const idx = today.split('').reduce((a,c) => a + c.charCodeAt(0), 0) % quotes.length;
-document.getElementById('quoteText').textContent = quotes[idx];
+const qIdx = today.split('').reduce((a,c)=>a+c.charCodeAt(0),0) % quotes.length;
+document.getElementById('quoteText').textContent = quotes[qIdx];
 
 // ===== Search =====
 function doSearch() {
   const q = document.getElementById('searchInput').value.trim();
   if (!q) return;
-  const engine = document.getElementById('searchEngine').value;
-  window.location.href = engine + encodeURIComponent(q);
+  window.location.href = document.getElementById('searchEngine').value + encodeURIComponent(q);
 }
 
 // ===== Todo =====
-function loadTodos() {
-  try { return JSON.parse(localStorage.getItem('db_todos') || '[]'); } catch(e) { return []; }
-}
-function saveTodos(todos) { localStorage.setItem('db_todos', JSON.stringify(todos)); }
+function loadTodos() { return S('todos', []); }
 function renderTodos() {
   const todos = loadTodos();
-  const list = document.getElementById('todoList');
-  list.innerHTML = todos.map((t, i) => `
-    <li class="todo-item ${t.done ? 'done' : ''}" onclick="toggleTodo(${i})">
-      <span class="todo-check">${t.done ? '✓' : ''}</span> ${t.text}
+  document.getElementById('todoList').innerHTML = todos.map((t,i) => `
+    <li class="todo-item ${t.done?'done':''}" onclick="toggleTodo(${i})">
+      <span class="todo-check">${t.done?'&#10003;':''}</span> ${he(t.text)}
     </li>
   `).join('');
 }
@@ -480,33 +431,119 @@ function addTodo() {
   if (!text) return;
   const todos = loadTodos();
   todos.push({ text, done: false });
-  saveTodos(todos);
+  SS('todos', todos);
   input.value = '';
   renderTodos();
 }
 function toggleTodo(i) {
   const todos = loadTodos();
   todos[i].done = !todos[i].done;
-  saveTodos(todos);
+  SS('todos', todos);
   renderTodos();
 }
+function he(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 renderTodos();
 
 // ===== Quick Links =====
 function renderLinks() {
-  const raw = localStorage.getItem('db_links');
-  if (!raw) {
-    localStorage.setItem('db_links', 
-      'https://github.com|GitHub,https://news.ycombinator.com|HN,https://www.reddit.com|Reddit,https://twitter.com|X,https://www.youtube.com|YouTube');
-  }
-  const links = (localStorage.getItem('db_links') || '').split(',').filter(l => l.includes('|'));
-  const container = document.getElementById('quickLinksContainer');
-  container.innerHTML = links.map(l => {
+  const raw = S('links', 'https://github.com|GitHub,https://news.ycombinator.com|HN,https://www.reddit.com|Reddit,https://twitter.com|X,https://www.youtube.com|YouTube');
+  const links = raw.split(',').filter(l => l.includes('|'));
+  document.getElementById('quickLinksContainer').innerHTML = links.map(l => {
     const [url, name] = l.split('|');
     return `<a href="${url.trim()}" class="quick-link" target="_blank">${name.trim()}</a>`;
   }).join('');
 }
+function editLinks() {
+  const raw = S('links', '');
+  const input = prompt('Edit links (comma-separated URL|Name):', raw);
+  if (input !== null) { SS('links', input); renderLinks(); }
+}
 renderLinks();
+
+// ===== Stats =====
+function updateStats(now) {
+  const todayStr = now.toDateString();
+  const lastDate = S('stat_date', '');
+  let total = S('stat_total', 0);
+  let todayVisits = S('stat_today', 0);
+  let streak = S('stat_streak', 0);
+  
+  // Track visit
+  total++;
+  SS('stat_total', total);
+  
+  if (lastDate !== todayStr) {
+    // New day
+    const yesterday = new Date(now.getTime() - 86400000).toDateString();
+    streak = (lastDate === yesterday) ? streak + 1 : 1;
+    todayVisits = 1;
+    SS('stat_date', todayStr);
+    SS('stat_today', todayVisits);
+    SS('stat_streak', streak);
+  } else {
+    todayVisits++;
+    SS('stat_today', todayVisits);
+  }
+  
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statToday').textContent = todayVisits;
+  document.getElementById('statStreak').textContent = streak;
+}
+
+// ===== Particle Animation =====
+(function() {
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  const count = 40;
+  
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  
+  class Particle {
+    constructor() {
+      this.reset();
+      this.y = Math.random() * canvas.height;
+    }
+    reset() {
+      this.x = Math.random() * canvas.width;
+      this.y = -20;
+      this.size = Math.random() * 2 + 1;
+      this.speedY = Math.random() * 0.3 + 0.1;
+      this.speedX = (Math.random() - 0.5) * 0.3;
+      this.opacity = Math.random() * 0.4 + 0.1;
+      this.flickerSpeed = Math.random() * 0.02 + 0.005;
+      this.flickerOffset = Math.random() * Math.PI * 2;
+    }
+    update() {
+      this.y += this.speedY;
+      this.x += this.speedX;
+      if (this.y > canvas.height + 20) this.reset();
+      if (this.x < -20) this.x = canvas.width + 20;
+      if (this.x > canvas.width + 20) this.x = -20;
+      this.currentOpacity = this.opacity + Math.sin(Date.now() * this.flickerSpeed + this.flickerOffset) * 0.15;
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(196,163,90,${Math.max(0, this.currentOpacity)})`;
+      ctx.fill();
+    }
+  }
+  
+  for (let i = 0; i < count; i++) particles.push(new Particle());
+  
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
 
 // ===== Background =====
 const bgImages = [
@@ -518,6 +555,8 @@ const bgImages = [
   'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=1920&q=80',
   'https://images.unsplash.com/photo-1439405326854-014607f694d7?w=1920&q=80',
   'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=1920&q=80',
+  'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=1920&q=80',
+  'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920&q=80',
 ];
 const bgIdx = new Date().getDate() % bgImages.length;
 document.getElementById('bgImage').style.backgroundImage = `url(${bgImages[bgIdx]})`;
