@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DayBoard 鈥?Your Daily Dashboard</title>
-<meta name="description" content="A beautiful daily dashboard. Weather, clock, to-do list, daily quote, holiday countdown, and quick search. Set as your browser homepage.">
+<title>DayBoard &mdash; Your Daily Dashboard</title>
+<meta name="description" content="Beautiful daily dashboard. Daily focus, weather forecast, to-do list, holiday countdown, focus timer, quotes. Set as your browser homepage.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #0d0f14;
@@ -18,7 +18,8 @@
   --text-secondary: #8892a4;
   --text-muted: #555d6e;
   --accent: #c4a35a;
-  --accent-glow: rgba(196,163,90,0.2);
+  --accent-glow: rgba(196,163,90,0.15);
+  --green: #34d399;
   --radius: 18px;
   --radius-sm: 10px;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -31,141 +32,123 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
 }
-
-/* Particle canvas */
-#particleCanvas {
-  position: fixed; inset: 0; z-index: 0;
-  pointer-events: none;
-}
-
-/* Background */
-.bg-image { position: fixed; inset: 0; z-index: 0; background-size: cover; background-position: center; opacity: 0.15; transition: opacity 1s; }
+#particleCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.bg-image { position: fixed; inset: 0; z-index: 0; background-size: cover; background-position: center; opacity: 0.15; }
 .bg-overlay { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at 50% 0%, var(--accent-glow) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(100,140,200,0.04) 0%, transparent 50%); }
 
-/* Layout */
-.dashboard { position: relative; z-index: 1; width: 100%; max-width: 920px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 40px 32px; }
+.dashboard { position: relative; z-index: 1; width: 100%; max-width: 960px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 36px 28px; }
 
-/* Settings gear */
-.settings-btn {
-  position: fixed; top: 20px; right: 20px; z-index: 10;
-  width: 40px; height: 40px; border-radius: 50%;
-  background: var(--surface); border: 1px solid var(--border);
-  color: var(--text-secondary); font-size: 1.2rem; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.3s; backdrop-filter: blur(10px);
-}
+.settings-btn { position: fixed; top: 20px; right: 20px; z-index: 10; width: 40px; height: 40px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; backdrop-filter: blur(10px); }
 .settings-btn:hover { background: var(--surface-hover); color: var(--text); transform: rotate(60deg); }
-.settings-panel {
-  position: fixed; top: 70px; right: 20px; z-index: 10;
-  background: rgba(13,15,20,0.95); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 20px;
-  backdrop-filter: blur(30px); min-width: 220px;
-  display: none; animation: fadeUp 0.3s var(--ease);
-}
+.settings-panel { position: fixed; top: 70px; right: 20px; z-index: 10; background: rgba(13,15,20,0.95); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; backdrop-filter: blur(30px); min-width: 220px; display: none; animation: fadeUp 0.3s var(--ease); }
 .settings-panel.open { display: block; }
 .settings-panel h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 12px; }
 .setting-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .setting-row label { font-size: 0.85rem; color: var(--text-secondary); flex: 1; }
-.setting-row input[type="text"] {
-  width: 130px; padding: 6px 10px; background: var(--surface-hover); border: 1px solid var(--border);
-  border-radius: 6px; color: var(--text); font-family: 'Outfit',sans-serif; font-size: 0.85rem; outline: none;
-}
+.setting-row input[type="text"] { width: 130px; padding: 6px 10px; background: var(--surface-hover); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'Outfit',sans-serif; font-size: 0.85rem; outline: none; }
 .setting-row input[type="text"]:focus { border-color: var(--accent); }
 
-/* Homepage banner */
-.homepage-banner {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
-  background: var(--accent); color: #0d0f14;
-  text-align: center; padding: 12px 20px;
-  font-size: 0.85rem; font-weight: 600;
-  display: none; animation: fadeUp 0.5s var(--ease);
-  cursor: pointer;
-}
-.homepage-banner.show { display: block; }
-.homepage-banner .close-banner { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #0d0f14; font-size: 1.2rem; cursor: pointer; opacity: 0.6; }
+.hero-section { text-align: center; margin-bottom: 20px; animation: fadeUp 0.8s var(--ease) forwards; }
+.mantra { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 3px; color: var(--accent); opacity: 0.6; margin-bottom: 12px; font-weight: 500; }
+.greeting { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 3vw, 2.2rem); font-style: italic; color: var(--accent); font-weight: 400; margin-bottom: 4px; }
+.time-display { font-family: 'Outfit', sans-serif; font-size: clamp(3rem, 9vw, 5.5rem); font-weight: 200; letter-spacing: -3px; line-height: 1; margin-bottom: 2px; }
+.time-display .ampm { font-size: 0.33em; font-weight: 300; letter-spacing: 0; margin-left: 4px; color: var(--text-secondary); }
+.date-display { font-size: 1.05rem; color: var(--text-secondary); font-weight: 400; letter-spacing: 0.5px; margin-bottom: 8px; }
+.weather-inline { font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
+.weather-icon-svg { width: 22px; height: 22px; flex-shrink: 0; }
+.quote-text { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--text-secondary); max-width: 520px; margin: 8px auto 0; line-height: 1.5; opacity: 0.6; }
 
-/* Hero */
-.hero-section { text-align: center; margin-bottom: 40px; animation: fadeUp 0.8s var(--ease) forwards; }
-.time-display { font-family: 'Outfit', sans-serif; font-size: clamp(3.5rem, 10vw, 6.5rem); font-weight: 200; letter-spacing: -3px; line-height: 1; margin-bottom: 2px; }
-.time-display .ampm { font-size: 0.33em; font-weight: 300; letter-spacing: 0; margin-left: 6px; color: var(--text-secondary); }
-.date-display { font-size: 1.1rem; color: var(--text-secondary); font-weight: 400; letter-spacing: 0.5px; margin-bottom: 20px; }
-.greeting { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 3vw, 2.2rem); font-style: italic; color: var(--accent); font-weight: 400; margin-bottom: 6px; }
-.quote-text { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--text-secondary); max-width: 500px; margin: 0 auto; line-height: 1.5; opacity: 0.7; }
-
-/* Weather bar */
-.weather-bar { 
-  display: flex; align-items: center; justify-content: center; gap: 6px; 
-  margin-top: 8px; font-size: 0.9rem; color: var(--text-secondary);
-}
-.weather-icon-svg { width: 24px; height: 24px; flex-shrink: 0; }
+/* Daily Focus Bar */
+.daily-focus-wrap { margin: 0 auto 16px; max-width: 560px; width: 100%; animation: fadeUp 0.8s var(--ease) 0.1s forwards; opacity: 0; }
+.daily-focus-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; backdrop-filter: blur(20px); display: flex; align-items: center; gap: 12px; transition: all 0.3s; }
+.daily-focus-bar:focus-within { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
+.daily-focus-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+.daily-focus-input { flex: 1; background: transparent; border: none; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 1rem; outline: none; }
+.daily-focus-input::placeholder { color: var(--text-muted); opacity: 0.6; }
+.daily-focus-display { font-size: 1rem; color: var(--text); flex: 1; }
 
 /* Search */
-.search-wrap { margin: 0 auto 44px; max-width: 560px; width: 100%; animation: fadeUp 0.8s var(--ease) 0.15s forwards; opacity: 0; }
+.search-wrap { margin: 0 auto 32px; max-width: 560px; width: 100%; animation: fadeUp 0.8s var(--ease) 0.15s forwards; opacity: 0; }
 .search-box { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 50px; overflow: hidden; backdrop-filter: blur(20px); transition: all 0.3s; }
 .search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 24px var(--accent-glow); }
-.search-engine { padding: 13px 8px 13px 16px; background: transparent; border: none; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.82rem; cursor: pointer; outline: none; min-width: 95px; border-right: 1px solid var(--border); }
+.search-engine { padding: 13px 8px 13px 16px; background: transparent; border: none; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.82rem; cursor: pointer; outline: none; min-width: 90px; border-right: 1px solid var(--border); }
 .search-engine option { background: #1a1d26; color: var(--text); }
 .search-input { flex: 1; padding: 13px 16px; background: transparent; border: none; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.95rem; outline: none; }
 .search-input::placeholder { color: var(--text-muted); }
 .search-btn { padding: 13px 20px; background: transparent; border: none; color: var(--text-secondary); font-size: 1.1rem; cursor: pointer; transition: color 0.2s; }
 .search-btn:hover { color: var(--accent); }
 
-/* Bento Grid */
-.bento-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 160px; gap: 12px; animation: fadeUp 0.8s var(--ease) 0.3s forwards; opacity: 0; }
-.bento-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; backdrop-filter: blur(20px); transition: all 0.3s var(--ease); overflow: hidden; position: relative; }
+/* Bento */
+.bento-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 155px; gap: 12px; animation: fadeUp 0.8s var(--ease) 0.25s forwards; opacity: 0; }
+.bento-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; backdrop-filter: blur(20px); transition: all 0.3s var(--ease); overflow: hidden; position: relative; }
 .bento-card:hover { background: var(--surface-hover); border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
 .bento-card.col-2 { grid-column: span 2; }
 .bento-card.row-2 { grid-row: span 2; }
-.card-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.card-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 .card-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 
+/* Holiday */
+.holiday-name { font-size: 0.85rem; color: var(--text); font-weight: 500; margin-bottom: 2px; }
+.holiday-days { font-size: 2.2rem; font-weight: 300; letter-spacing: -1px; color: var(--accent); line-height: 1; }
+.holiday-date { font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px; }
+
+/* Focus Timer */
+.focus-timer-display { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 300; letter-spacing: -1px; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+.focus-timer-sessions { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 8px; }
+.focus-timer-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.focus-btn { padding: 5px 12px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); font-family: 'Outfit', sans-serif; font-size: 0.72rem; cursor: pointer; transition: all 0.2s; font-weight: 500; white-space: nowrap; }
+.focus-btn:hover { background: var(--surface-hover); color: var(--text); }
+.focus-btn.accent { background: var(--accent); color: #0d0f14; border-color: var(--accent); font-weight: 600; }
+.focus-btn.accent:hover { filter: brightness(1.1); }
+.focus-timer-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+.focus-timer-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 1s linear; width: 0%; }
+
+/* Ambient sounds */
+.sound-toggles { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.sound-tog { font-size: 0.65rem; padding: 3px 8px; border-radius: 12px; border: 1px solid transparent; background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s; font-family: 'Outfit', sans-serif; }
+.sound-tog:hover { color: var(--text-secondary); }
+.sound-tog.on { background: rgba(196,163,90,0.12); border-color: var(--accent); color: var(--accent); }
+
+/* Forecast */
+.forecast-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.forecast-row:last-child { border-bottom: none; }
+.forecast-day { font-size: 0.75rem; color: var(--text); font-weight: 500; min-width: 35px; }
+.forecast-temp { font-size: 0.8rem; color: var(--text-secondary); }
+.forecast-hi { color: var(--text); font-weight: 500; }
+
 /* Todo */
-.todo-list { list-style: none; max-height: 80px; overflow-y: auto; }
-.todo-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 0.82rem; color: var(--text-secondary); cursor: pointer; transition: color 0.2s; }
+.todo-list { list-style: none; max-height: 75px; overflow-y: auto; }
+.todo-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; transition: color 0.2s; }
 .todo-item:hover { color: var(--text); }
 .todo-item.done { text-decoration: line-through; opacity: 0.4; }
 .todo-check { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--text-muted); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; transition: all 0.2s; }
 .todo-item.done .todo-check { background: var(--accent); border-color: var(--accent); }
-.todo-input { width: 100%; padding: 6px 0; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.8rem; outline: none; margin-top: 4px; }
+.todo-input { width: 100%; padding: 4px 0; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.78rem; outline: none; margin-top: 4px; }
 .todo-input::placeholder { color: var(--text-muted); }
 
-/* Links */
-.quick-links { display: flex; flex-wrap: wrap; gap: 8px; }
-.quick-link { padding: 6px 14px; border-radius: 20px; background: rgba(255,255,255,0.04); color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; transition: all 0.2s; border: 1px solid transparent; }
+/* Links + Stats */
+.quick-links { display: flex; flex-wrap: wrap; gap: 6px; }
+.quick-link { padding: 4px 10px; border-radius: 14px; background: rgba(255,255,255,0.04); color: var(--text-secondary); text-decoration: none; font-size: 0.75rem; transition: all 0.2s; border: 1px solid transparent; }
 .quick-link:hover { background: var(--surface-hover); color: var(--text); border-color: var(--border); }
-
-/* Holiday countdown */
-.holiday-name { font-size: 0.85rem; color: var(--text); font-weight: 500; margin-bottom: 2px; }
-.holiday-days { font-size: 2.5rem; font-weight: 300; letter-spacing: -1px; color: var(--accent); line-height: 1; }
-.holiday-date { font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; }
-
-/* Stats */
-.stat-value { font-size: 2rem; font-weight: 500; letter-spacing: -1px; line-height: 1; }
-.stat-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
 .stat-mini { text-align: center; }
-.stat-mini-num { font-size: 1.3rem; font-weight: 500; color: var(--text); }
+.stat-mini-num { font-size: 1.2rem; font-weight: 500; color: var(--text); }
 .stat-mini-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
-/* Animations */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 768px) {
-  .dashboard { padding: 32px 16px; }
+  .dashboard { padding: 28px 14px; }
   .bento-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; }
   .bento-card.col-2 { grid-column: span 2; }
-  .time-display { font-size: 3rem; }
+  .time-display { font-size: 2.5rem; }
 }
 @media (max-width: 480px) {
   .bento-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
   .bento-card.col-2, .bento-card.row-2 { grid-column: span 1; grid-row: span 1; }
-  .time-display { font-size: 2.5rem; }
+  .time-display { font-size: 2rem; }
 }
 </style>
 </head>
@@ -175,34 +158,29 @@ body {
 <div class="bg-image" id="bgImage"></div>
 <div class="bg-overlay"></div>
 
-<!-- Settings -->
-<button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" title="Settings">&#9881;</button>
+<button class="settings-btn" onclick="toggleSettings()" title="Settings">&#9881;</button>
 <div class="settings-panel" id="settingsPanel">
   <h3>Settings</h3>
-  <div class="setting-row">
-    <label>Your Name</label>
-    <input type="text" id="nameInput" placeholder="Your name" onchange="saveName()" maxlength="20">
-  </div>
-  <div style="font-size:0.7rem;color:var(--text-muted);margin-top:12px;">
-    Set as homepage: <strong>chrome://settings</strong> &rarr; On startup &rarr; Open a specific page &rarr; Paste URL
-  </div>
-</div>
-
-<!-- Homepage banner -->
-<div class="homepage-banner" id="homepageBanner" onclick="this.classList.remove('show')">
-  Tip: Set this page as your browser homepage for daily inspiration!
-  <button class="close-banner" onclick="event.stopPropagation();document.getElementById('homepageBanner').classList.remove('show');localStorage.setItem('db_banner_hidden','1')">X</button>
+  <div class="setting-row"><label>Your Name</label><input type="text" id="nameInput" placeholder="Your name" onchange="saveName()" maxlength="20"></div>
+  <div style="font-size:0.7rem;color:var(--text-muted);margin-top:10px;">Set as homepage: chrome://settings &rarr; On startup &rarr; Paste URL</div>
 </div>
 
 <div class="dashboard">
-
-  <!-- Hero -->
   <div class="hero-section">
+    <div class="mantra" id="mantra"></div>
     <div class="greeting" id="greeting">Good morning</div>
     <div class="time-display" id="timeDisplay"></div>
     <div class="date-display" id="dateDisplay"></div>
-    <div class="weather-bar" id="weatherBar">Loading...</div>
+    <div class="weather-inline" id="weatherInline">Loading...</div>
     <div class="quote-text" id="quoteText"></div>
+  </div>
+
+  <!-- Daily Focus -->
+  <div class="daily-focus-wrap">
+    <div class="daily-focus-bar">
+      <span class="daily-focus-label">Today's Focus</span>
+      <input type="text" class="daily-focus-input" id="focusInput" placeholder="What's your main focus today?" onkeydown="if(event.key==='Enter')saveFocus()" onblur="saveFocus()">
+    </div>
   </div>
 
   <!-- Search -->
@@ -220,346 +198,175 @@ body {
     </div>
   </div>
 
-  <!-- Bento Grid -->
   <div class="bento-grid">
-
-    <!-- Holiday Countdown -->
+    <!-- Focus Timer -->
     <div class="bento-card col-2">
-      <div class="card-title"><span class="dot"></span> Next Holiday</div>
-      <div style="display:flex;align-items:center;gap:20px;">
+      <div class="card-title"><span class="dot"></span> Focus Timer</div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div><div class="focus-timer-display" id="ftDisplay">25:00</div><div class="focus-timer-sessions" id="ftSessions">Sessions: 0</div></div>
         <div>
-          <div class="holiday-name" id="holidayName"></div>
-          <div class="holiday-days" id="holidayDays"></div>
-          <div class="holiday-date" id="holidayDate"></div>
+          <div class="focus-timer-btns">
+            <button class="focus-btn" data-min="25" onclick="ftSetMode(25,this)">25m</button>
+            <button class="focus-btn" data-min="45" onclick="ftSetMode(45,this)">45m</button>
+            <button class="focus-btn" data-min="5" onclick="ftSetMode(5,this)">5m</button>
+            <button class="focus-btn accent" id="ftPlayBtn" onclick="ftToggle()">Start</button>
+            <button class="focus-btn" onclick="ftReset()">Reset</button>
+          </div>
+          <div class="sound-toggles">
+            <button class="sound-tog" data-snd="none" onclick="ftSetSound('none',this)">Silent</button>
+            <button class="sound-tog" data-snd="rain" onclick="ftSetSound('rain',this)">Rain</button>
+            <button class="sound-tog" data-snd="forest" onclick="ftSetSound('forest',this)">Forest</button>
+            <button class="sound-tog" data-snd="ocean" onclick="ftSetSound('ocean',this)">Ocean</button>
+            <button class="sound-tog" data-snd="cafe" onclick="ftSetSound('cafe',this)">Cafe</button>
+          </div>
         </div>
-        <div style="font-size:3rem;opacity:0.3;" id="holidayEmoji"></div>
       </div>
+      <div class="focus-timer-bar"><div class="focus-timer-bar-fill" id="ftBar"></div></div>
     </div>
 
-    <!-- To-Do -->
+    <!-- Tasks -->
     <div class="bento-card row-2">
       <div class="card-title"><span class="dot"></span> Tasks</div>
       <ul class="todo-list" id="todoList"></ul>
-      <input type="text" class="todo-input" id="todoInput" placeholder="+ Add task..." onkeydown="if(event.key==='Enter')addTodo()">
+      <input type="text" class="todo-input" id="todoInput" placeholder="+ Add..." onkeydown="if(event.key==='Enter')addTodo()">
     </div>
 
-    <!-- Stats -->
+    <!-- Weather Forecast -->
+    <div class="bento-card" id="forecastCard">
+      <div class="card-title"><span class="dot"></span> Forecast</div>
+      <div id="forecastContent">Loading...</div>
+    </div>
+
+    <!-- Holiday -->
+    <div class="bento-card">
+      <div class="card-title"><span class="dot"></span> Holiday</div>
+      <div class="holiday-name" id="holidayName"></div>
+      <div class="holiday-days" id="holidayDays"></div>
+      <div class="holiday-date" id="holidayDate"></div>
+    </div>
+
+    <!-- Stats + Links combined -->
     <div class="bento-card">
       <div class="card-title"><span class="dot"></span> Stats</div>
-      <div class="stat-grid">
-        <div class="stat-mini"><div class="stat-mini-num" id="statTotal">0</div><div class="stat-mini-label">Total Visits</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
         <div class="stat-mini"><div class="stat-mini-num" id="statToday">0</div><div class="stat-mini-label">Today</div></div>
-        <div class="stat-mini"><div class="stat-mini-num" id="statStreak">0</div><div class="stat-mini-label">Day Streak</div></div>
-        <div class="stat-mini"><div class="stat-mini-num" id="statYear">0%</div><div class="stat-mini-label">Year Done</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="statStreak">0</div><div class="stat-mini-label">Streak</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="statYear">0%</div><div class="stat-mini-label">Year</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="statTotal">0</div><div class="stat-mini-label">Total</div></div>
       </div>
     </div>
 
-    <!-- Quick Links -->
-    <div class="bento-card">
+    <!-- Links -->
+    <div class="bento-card col-2">
       <div class="card-title"><span class="dot"></span> Links</div>
       <div class="quick-links">
         <a href="#" class="quick-link" onclick="editLinks()">Edit</a>
         <span id="quickLinksContainer"></span>
       </div>
     </div>
-
   </div>
-
 </div>
 
 <script>
-// ===== Storage =====
-const S = (k,d) => { try { const v = localStorage.getItem('db_'+k); return v !== null ? JSON.parse(v) : d; } catch(e) { return d; } };
-const SS = (k,v) => localStorage.setItem('db_'+k, JSON.stringify(v));
+const S=(k,d)=>{try{const v=localStorage.getItem('db_'+k);return v!==null?JSON.parse(v):d}catch(e){return d}};
+const SS=(k,v)=>localStorage.setItem('db_'+k,JSON.stringify(v));
 
-// ===== User Name =====
-const userName = S('name', '');
-document.getElementById('nameInput').value = userName;
-function saveName() {
-  const name = document.getElementById('nameInput').value.trim();
-  SS('name', name);
-  updateGreeting();
-}
-function updateGreeting() {
-  const name = S('name', '');
-  const h = new Date().getHours();
-  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  document.getElementById('greeting').textContent = name ? `${g}, ${name}` : g;
-}
+// ===== Name & Mantra =====
+const mantras=['Breathe.','Stay hungry.','One step at a time.','Make it happen.','Focus on the good.','Keep going.','Be present.','Choose joy.','Less is more.','Do it now.','Stay curious.','Small wins matter.','Trust the process.','You got this.','Dream big.','Begin anywhere.'];
+document.getElementById('mantra').textContent=mantras[new Date().getDate()%mantras.length];
+const userName=S('name','');document.getElementById('nameInput').value=userName;
+function saveName(){SS('name',document.getElementById('nameInput').value.trim());updateGreeting();}
+function updateGreeting(){const n=S('name',''),h=new Date().getHours(),g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';document.getElementById('greeting').textContent=n?`${g}, ${n}`:g;}
 
 // ===== Settings =====
-function toggleSettings() {
-  document.getElementById('settingsPanel').classList.toggle('open');
-}
-document.addEventListener('click', e => {
-  if (!e.target.closest('.settings-btn') && !e.target.closest('.settings-panel')) {
-    document.getElementById('settingsPanel').classList.remove('open');
-  }
-});
+function toggleSettings(){document.getElementById('settingsPanel').classList.toggle('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.settings-btn')&&!e.target.closest('.settings-panel'))document.getElementById('settingsPanel').classList.remove('open');});
 
-// ===== Homepage banner =====
-if (!S('banner_hidden', false) && !S('name', '')) {
-  setTimeout(() => document.getElementById('homepageBanner').classList.add('show'), 5000);
-}
+// ===== Daily Focus =====
+const focusDate=S('focus_date',''),todayStr=new Date().toDateString();
+const savedFocus=(focusDate===todayStr)?S('focus_text',''):'';
+const fi=document.getElementById('focusInput');
+if(savedFocus){fi.value=savedFocus;fi.style.display='none';fi.insertAdjacentHTML('afterend',`<span class="daily-focus-display" id="focusDisplay">${he(savedFocus)}</span>`);}
+function saveFocus(){const v=fi.value.trim();if(v){SS('focus_text',v);SS('focus_date',todayStr);fi.style.display='none';const el=document.getElementById('focusDisplay')||document.createElement('span');el.className='daily-focus-display';el.id='focusDisplay';el.textContent=v;fi.parentNode.appendChild(el);}else{fi.style.display='';const el=document.getElementById('focusDisplay');if(el)el.remove();}}
+if(savedFocus){fi.style.display='none';}
 
 // ===== Clock =====
-function updateClock() {
-  const now = new Date();
-  const h = now.getHours(), m = now.getMinutes();
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const h12 = h % 12 || 12;
-  document.getElementById('timeDisplay').innerHTML = `${h12}:${String(m).padStart(2,'0')}<span class="ampm">${ampm}</span>`;
+function updateClock(){
+  const now=new Date(),h=now.getHours(),m=now.getMinutes(),ampm=h>=12?'PM':'AM',h12=h%12||12;
+  document.getElementById('timeDisplay').innerHTML=`${h12}:${String(m).padStart(2,'0')}<span class="ampm">${ampm}</span>`;
   updateGreeting();
-  const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-US', opts);
-  
-  // Year progress
-  const start = new Date(now.getFullYear(), 0, 1);
-  const end = new Date(now.getFullYear() + 1, 0, 1);
-  document.getElementById('statYear').textContent = ((now - start) / (end - start) * 100).toFixed(1) + '%';
-  
-  // Holiday countdown
-  updateHolidayCountdown(now);
-  
-  // Stats
-  updateStats(now);
-}
-updateClock();
-setInterval(updateClock, 60000);
+  document.getElementById('dateDisplay').textContent=now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const start=new Date(now.getFullYear(),0,1),end=new Date(now.getFullYear()+1,0,1);
+  document.getElementById('statYear').textContent=((now-start)/(end-start)*100).toFixed(1)+'%';
+  updateHoliday(now);updateStats(now);
+}updateClock();setInterval(updateClock,60000);
 
-// ===== Holiday Countdown (Chinese holidays) =====
-function updateHolidayCountdown(now) {
-  const year = now.getFullYear();
-  const holidays = [
-    { name: "New Year's Day", date: new Date(year, 0, 1), emoji: '&#127881;' },
-    { name: 'Chinese New Year', date: new Date(year, 1, 17), emoji: '&#129512;' },
-    { name: 'Qingming Festival', date: new Date(year, 3, 5), emoji: '&#127793;' },
-    { name: 'Labor Day', date: new Date(year, 4, 1), emoji: '&#128119;' },
-    { name: 'Dragon Boat Festival', date: new Date(year, 5, 19), emoji: '&#128675;' },
-    { name: 'Mid-Autumn Festival', date: new Date(year, 8, 25), emoji: '&#127766;' },
-    { name: 'National Day', date: new Date(year, 9, 1), emoji: '&#127386;' },
-  ];
-  
-  // If all holidays this year have passed, show New Year next year
-  let next = holidays.find(h => h.date > now);
-  if (!next) next = { name: "New Year's Day", date: new Date(year + 1, 0, 1), emoji: '&#127881;' };
-  
-  const diff = Math.ceil((next.date - now) / 86400000);
-  document.getElementById('holidayName').textContent = next.name;
-  document.getElementById('holidayDays').innerHTML = diff === 0 ? 'Today!' : diff + ' <span style="font-size:1rem">days</span>';
-  document.getElementById('holidayDate').textContent = next.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  document.getElementById('holidayEmoji').innerHTML = next.emoji;
-}
+// ===== Holiday =====
+function updateHoliday(now){const y=now.getFullYear();const hl=[{n:"New Year's Day",d:new Date(y,0,1)},{n:'Chinese New Year',d:new Date(y,1,17)},{n:'Qingming Festival',d:new Date(y,3,5)},{n:'Labor Day',d:new Date(y,4,1)},{n:'Dragon Boat Festival',d:new Date(y,5,19)},{n:'Mid-Autumn Festival',d:new Date(y,8,25)},{n:'National Day',d:new Date(y,9,1)}];let nx=hl.find(h=>h.d>now);if(!nx)nx={n:"New Year's Day",d:new Date(y+1,0,1)};const diff=Math.ceil((nx.d-now)/86400000);document.getElementById('holidayName').textContent=nx.n;document.getElementById('holidayDays').innerHTML=diff===0?'Today!':diff+' <span style="font-size:0.85rem">days</span>';document.getElementById('holidayDate').textContent=nx.d.toLocaleDateString('en-US',{month:'long',day:'numeric'});}
 
-// ===== Weather with SVG icons =====
-function getWeatherSVG(code) {
-  // Simple SVG weather icons
-  const svgs = {
-    0: '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="5" fill="#fbbf24" stroke="#f59e0b" stroke-width="1"/><line x1="12" y1="2" x2="12" y2="5" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="19" x2="12" y2="22" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="12" x2="5" y2="12" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><line x1="19" y1="12" x2="22" y2="12" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/></svg>',
-    1: '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="9" cy="8" r="4" fill="#fbbf24" stroke="#f59e0b" stroke-width="1"/><line x1="9" y1="1" x2="9" y2="3" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="13" x2="9" y2="15" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><path d="M15 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="#94a3b8" stroke="#64748b" stroke-width="1"/></svg>',
-    2: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M6 18a4 4 0 1 1 0-8 3.5 3.5 0 0 1 6.5-1 3 3 0 1 1 2 5H6z" fill="#94a3b8" stroke="#64748b" stroke-width="1"/></svg>',
-    3: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 19a5 5 0 1 1 0-10 4 4 0 0 1 7-1.5A4.5 4.5 0 0 1 18 10h1a3 3 0 0 1 0 6H4z" fill="#64748b" stroke="#475569" stroke-width="1"/></svg>',
-    45: '<svg viewBox="0 0 24 24" width="24" height="24"><line x1="3" y1="9" x2="9" y2="9" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="12" x2="14" y2="12" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="15" x2="17" y2="15" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/></svg>',
-    51: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 18a4 4 0 1 1 0-8" fill="#94a3b8" stroke="#64748b" stroke-width="1"/><line x1="8" y1="21" x2="8" y2="18" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="22" x2="12" y2="18" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/></svg>',
-    61: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 16a4 4 0 1 1 0-8" fill="#64748b" stroke="#475569" stroke-width="1"/><line x1="7" y1="20" x2="5" y2="16" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="21" x2="9" y2="16" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/><line x1="15" y1="20" x2="13" y2="16" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/></svg>',
-    71: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 16a4 4 0 1 1 0-8" fill="#64748b" stroke="#475569" stroke-width="1"/><circle cx="8" cy="19" r="1" fill="#e2e8f0"/><circle cx="10" cy="21" r="1.5" fill="#e2e8f0"/><circle cx="13" cy="18" r="1" fill="#e2e8f0"/></svg>',
-    80: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 16a4 4 0 1 1 0-8" fill="#64748b" stroke="#475569" stroke-width="1"/><line x1="7" y1="19" x2="5" y2="15" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="20" x2="9" y2="15" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/><line x1="15" y1="19" x2="14" y2="15" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/></svg>',
-    95: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 16a5 5 0 1 1 0-10" fill="#64748b" stroke="#475569" stroke-width="1"/><polygon points="12,3 13.5,8 11,5.5 13,10" fill="#fbbf24" stroke="#f59e0b" stroke-width="0.5"/></svg>',
-  };
-  return svgs[code] || svgs[3];
-}
+// ===== Weather =====
+function weatherSVG(c){const s={0:'<svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="4" fill="#fbbf24"/></svg>',1:'<svg viewBox="0 0 20 20" width="20" height="20"><circle cx="8" cy="8" r="3.5" fill="#fbbf24"/><path d="M13 14a2.5 2.5 0 100-5" fill="#94a3b8"/></svg>',2:'<svg viewBox="0 0 20 20" width="20" height="20"><path d="M5 15a3.5 3.5 0 110-7 3 3 0 015.5-1 2.5 2.5 0 012 4.5H5z" fill="#94a3b8"/></svg>',3:'<svg viewBox="0 0 20 20" width="20" height="20"><path d="M3 16a4 4 0 110-8 3.5 3.5 0 016-1.5A4 4 0 0115 8h1a2.5 2.5 0 010 5H3z" fill="#64748b"/></svg>',45:'<svg viewBox="0 0 20 20" width="20" height="20"><line x1="3" y1="8" x2="9" y2="8" stroke="#94a3b8" stroke-width="2"/><line x1="5" y1="11" x2="14" y2="11" stroke="#94a3b8" stroke-width="2"/><line x1="4" y1="14" x2="16" y2="14" stroke="#94a3b8" stroke-width="2"/></svg>',51:'<svg viewBox="0 0 20 20" width="20" height="20"><path d="M4 14a3 3 0 110-6" fill="#94a3b8"/><line x1="7" y1="18" x2="7" y2="15" stroke="#60a5fa" stroke-width="1.5"/><line x1="11" y1="19" x2="11" y2="15" stroke="#60a5fa" stroke-width="1.5"/></svg>',61:'<svg viewBox="0 0 20 20" width="20" height="20"><path d="M3 13a3.5 3.5 0 110-7" fill="#64748b"/><line x1="6" y1="17" x2="4" y2="13" stroke="#60a5fa" stroke-width="1.5"/><line x1="10" y1="18" x2="8" y2="13" stroke="#60a5fa" stroke-width="1.5"/><line x1="14" y1="17" x2="12" y2="13" stroke="#60a5fa" stroke-width="1.5"/></svg>',71:'<svg viewBox="0 0 20 20" width="20" height="20"><circle cx="7" cy="17" r="1.2" fill="#e2e8f0"/><circle cx="10" cy="18" r="1.5" fill="#e2e8f0"/><circle cx="13" cy="16" r="1" fill="#e2e8f0"/></svg>',95:'<svg viewBox="0 0 20 20" width="20" height="20"><polygon points="10,2 12,8 10,6 12,9" fill="#fbbf24"/><path d="M3 13a4 4 0 110-8" fill="#64748b"/></svg>'};return s[c]||s[3];}
 
-async function fetchWeather() {
-  try {
-    const pos = await new Promise((r, rej) => navigator.geolocation.getCurrentPosition(r, rej, { timeout: 5000 }));
-    const { latitude: lat, longitude: lon } = pos.coords;
-    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`);
-    const data = await resp.json();
-    const temp = Math.round(data.current.temperature_2m);
-    const svg = getWeatherSVG(data.current.weather_code);
-    const city = data.timezone?.split('/')[1] || '';
-    document.getElementById('weatherBar').innerHTML = `<span class="weather-icon-svg">${svg}</span> ${temp}&deg;C ${city}`;
-  } catch(e) {
-    document.getElementById('weatherBar').innerHTML = '<span class="weather-icon-svg">' + getWeatherSVG(3) + '</span> Weather unavailable';
-  }
-}
-fetchWeather();
+async function fetchWeather(){
+  try{const p=await new Promise((r,rej)=>navigator.geolocation.getCurrentPosition(r,rej,{timeout:5000}));const{latitude:lat,longitude:lon}=p.coords;const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weather_code&current=temperature_2m,weather_code&timezone=auto&forecast_days=3`);const d=await r.json();const t=Math.round(d.current.temperature_2m);const svg=weatherSVG(d.current.weather_code);const city=d.timezone?.split('/')[1]||'';document.getElementById('weatherInline').innerHTML=`<span class="weather-icon-svg">${svg}</span> ${t}&deg;C ${city}`;
+  const days=['Today','Tomorrow'];const dn=new Date();days.push(new Intl.DateTimeFormat('en',{weekday:'short'}).format(new Date(dn.getTime()+172800000)));
+  let fc='';d.daily.time.forEach((dt,i)=>{if(i>2)return;const hi=Math.round(d.daily.temperature_2m_max[i]),lo=Math.round(d.daily.temperature_2m_min[i]);fc+=`<div class="forecast-row"><span class="forecast-day">${i===0?'Today':days[i]}</span><span class="weather-icon-svg">${weatherSVG(d.daily.weather_code[i])}</span><span class="forecast-temp"><span class="forecast-hi">${hi}&deg;</span> ${lo}&deg;</span></div>`;});document.getElementById('forecastContent').innerHTML=fc;}catch(e){document.getElementById('weatherInline').textContent='Weather unavailable';document.getElementById('forecastContent').textContent='N/A';}}fetchWeather();
 
-// ===== Daily Quote =====
-const quotes = [
-  '"The only way to do great work is to love what you do." 鈥?Steve Jobs',
-  '"It does not matter how slowly you go as long as you do not stop." 鈥?Confucius',
-  '"The future belongs to those who believe in the beauty of their dreams." 鈥?Eleanor Roosevelt',
-  '"Strive not to be a success, but rather to be of value." 鈥?Albert Einstein',
-  '"The best time to plant a tree was 20 years ago. The second best time is now." 鈥?Chinese Proverb',
-  '"Your time is limited, don\'t waste it living someone else\'s life." 鈥?Steve Jobs',
-  '"Everything you\'ve ever wanted is on the other side of fear." 鈥?George Addair',
-  '"The only impossible journey is the one you never begin." 鈥?Tony Robbins',
-  '"Do what you can, with what you have, where you are." 鈥?Theodore Roosevelt',
-  '"Success is not final, failure is not fatal: it is the courage to continue that counts." 鈥?Winston Churchill',
-  '"Act as if what you do makes a difference. It does." 鈥?William James',
-  '"The secret of getting ahead is getting started." 鈥?Mark Twain',
-  '"Believe you can and you\'re halfway there." 鈥?Theodore Roosevelt',
-  '"In the middle of difficulty lies opportunity." 鈥?Albert Einstein',
-  '"Start where you are. Use what you have. Do what you can." 鈥?Arthur Ashe',
-  '"It always seems impossible until it\'s done." 鈥?Nelson Mandela',
-];
-const today = new Date().toDateString();
-const qIdx = today.split('').reduce((a,c)=>a+c.charCodeAt(0),0) % quotes.length;
-document.getElementById('quoteText').textContent = quotes[qIdx];
+// ===== Quote =====
+const quotes=['"The only way to do great work is to love what you do." \u2014 Steve Jobs','"It does not matter how slowly you go as long as you do not stop." \u2014 Confucius','"The future belongs to those who believe in the beauty of their dreams." \u2014 Eleanor Roosevelt','"Strive not to be a success, but rather to be of value." \u2014 Albert Einstein','"Your time is limited, don\'t waste it living someone else\'s life." \u2014 Steve Jobs','"Everything you\'ve ever wanted is on the other side of fear." \u2014 George Addair','"The secret of getting ahead is getting started." \u2014 Mark Twain','"Believe you can and you\'re halfway there." \u2014 Theodore Roosevelt','"In the middle of difficulty lies opportunity." \u2014 Albert Einstein','"It always seems impossible until it\'s done." \u2014 Nelson Mandela','"Act as if what you do makes a difference. It does." \u2014 William James','"Quality is not an act, it is a habit." \u2014 Aristotle','"Start where you are. Use what you have. Do what you can." \u2014 Arthur Ashe','"The best time to plant a tree was 20 years ago. The second best time is now." \u2014 Chinese Proverb','"Don\'t watch the clock; do what it does. Keep going." \u2014 Sam Levenson','"Do what you can, with what you have, where you are." \u2014 Theodore Roosevelt'];
+const qIdx=new Date().toDateString().split('').reduce((a,c)=>a+c.charCodeAt(0),0)%quotes.length;
+document.getElementById('quoteText').textContent=quotes[qIdx];
 
 // ===== Search =====
-function doSearch() {
-  const q = document.getElementById('searchInput').value.trim();
-  if (!q) return;
-  window.location.href = document.getElementById('searchEngine').value + encodeURIComponent(q);
-}
+function doSearch(){const q=document.getElementById('searchInput').value.trim();if(!q)return;window.location.href=document.getElementById('searchEngine').value+encodeURIComponent(q);}
 
 // ===== Todo =====
-function loadTodos() { return S('todos', []); }
-function renderTodos() {
-  const todos = loadTodos();
-  document.getElementById('todoList').innerHTML = todos.map((t,i) => `
-    <li class="todo-item ${t.done?'done':''}" onclick="toggleTodo(${i})">
-      <span class="todo-check">${t.done?'&#10003;':''}</span> ${he(t.text)}
-    </li>
-  `).join('');
-}
-function addTodo() {
-  const input = document.getElementById('todoInput');
-  const text = input.value.trim();
-  if (!text) return;
-  const todos = loadTodos();
-  todos.push({ text, done: false });
-  SS('todos', todos);
-  input.value = '';
-  renderTodos();
-}
-function toggleTodo(i) {
-  const todos = loadTodos();
-  todos[i].done = !todos[i].done;
-  SS('todos', todos);
-  renderTodos();
-}
-function he(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function loadTodos(){return S('todos',[]);}
+function renderTodos(){const todos=loadTodos();document.getElementById('todoList').innerHTML=todos.map((t,i)=>`<li class="todo-item ${t.done?'done':''}" onclick="toggleTodo(${i})"><span class="todo-check">${t.done?'&#10003;':''}</span> ${he(t.text)}</li>`).join('');}
+function addTodo(){const input=document.getElementById('todoInput'),text=input.value.trim();if(!text)return;const todos=loadTodos();todos.push({text,done:false});SS('todos',todos);input.value='';renderTodos();}
+function toggleTodo(i){const todos=loadTodos();todos[i].done=!todos[i].done;SS('todos',todos);renderTodos();}
+function he(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 renderTodos();
 
-// ===== Quick Links =====
-function renderLinks() {
-  const raw = S('links', 'https://github.com|GitHub,https://news.ycombinator.com|HN,https://www.reddit.com|Reddit,https://twitter.com|X,https://www.youtube.com|YouTube');
-  const links = raw.split(',').filter(l => l.includes('|'));
-  document.getElementById('quickLinksContainer').innerHTML = links.map(l => {
-    const [url, name] = l.split('|');
-    return `<a href="${url.trim()}" class="quick-link" target="_blank">${name.trim()}</a>`;
-  }).join('');
-}
-function editLinks() {
-  const raw = S('links', '');
-  const input = prompt('Edit links (comma-separated URL|Name):', raw);
-  if (input !== null) { SS('links', input); renderLinks(); }
-}
-renderLinks();
-
 // ===== Stats =====
-function updateStats(now) {
-  const todayStr = now.toDateString();
-  const lastDate = S('stat_date', '');
-  let total = S('stat_total', 0);
-  let todayVisits = S('stat_today', 0);
-  let streak = S('stat_streak', 0);
-  
-  // Track visit
-  total++;
-  SS('stat_total', total);
-  
-  if (lastDate !== todayStr) {
-    // New day
-    const yesterday = new Date(now.getTime() - 86400000).toDateString();
-    streak = (lastDate === yesterday) ? streak + 1 : 1;
-    todayVisits = 1;
-    SS('stat_date', todayStr);
-    SS('stat_today', todayVisits);
-    SS('stat_streak', streak);
-  } else {
-    todayVisits++;
-    SS('stat_today', todayVisits);
-  }
-  
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statToday').textContent = todayVisits;
-  document.getElementById('statStreak').textContent = streak;
-}
+function updateStats(now){const ts=now.toDateString(),ld=S('stat_date','');let t=S('stat_total',0),tv=S('stat_today',0),st=S('stat_streak',0);t++;SS('stat_total',t);if(ld!==ts){const y=new Date(now.getTime()-86400000).toDateString();st=(ld===y)?st+1:1;tv=1;SS('stat_date',ts);SS('stat_today',tv);SS('stat_streak',st);}else{tv++;SS('stat_today',tv);}document.getElementById('statToday').textContent=tv;document.getElementById('statStreak').textContent=st;document.getElementById('statTotal').textContent=t;}
 
-// ===== Particle Animation =====
-(function() {
-  const canvas = document.getElementById('particleCanvas');
-  const ctx = canvas.getContext('2d');
-  let particles = [];
-  const count = 40;
-  
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-  
-  class Particle {
-    constructor() {
-      this.reset();
-      this.y = Math.random() * canvas.height;
-    }
-    reset() {
-      this.x = Math.random() * canvas.width;
-      this.y = -20;
-      this.size = Math.random() * 2 + 1;
-      this.speedY = Math.random() * 0.3 + 0.1;
-      this.speedX = (Math.random() - 0.5) * 0.3;
-      this.opacity = Math.random() * 0.4 + 0.1;
-      this.flickerSpeed = Math.random() * 0.02 + 0.005;
-      this.flickerOffset = Math.random() * Math.PI * 2;
-    }
-    update() {
-      this.y += this.speedY;
-      this.x += this.speedX;
-      if (this.y > canvas.height + 20) this.reset();
-      if (this.x < -20) this.x = canvas.width + 20;
-      if (this.x > canvas.width + 20) this.x = -20;
-      this.currentOpacity = this.opacity + Math.sin(Date.now() * this.flickerSpeed + this.flickerOffset) * 0.15;
-    }
-    draw() {
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(196,163,90,${Math.max(0, this.currentOpacity)})`;
-      ctx.fill();
-    }
-  }
-  
-  for (let i = 0; i < count; i++) particles.push(new Particle());
-  
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => { p.update(); p.draw(); });
-    requestAnimationFrame(animate);
-  }
-  animate();
-})();
+// ===== Links =====
+function renderLinks(){const raw=S('links','https://github.com|GitHub,https://news.ycombinator.com|HN,https://www.reddit.com|Reddit,https://twitter.com|X,https://www.youtube.com|YouTube');document.getElementById('quickLinksContainer').innerHTML=raw.split(',').filter(l=>l.includes('|')).map(l=>{const[u,n]=l.split('|');return`<a href="${u.trim()}" class="quick-link" target="_blank">${n.trim()}</a>`;}).join('');}
+function editLinks(){const raw=S('links',''),input=prompt('Edit links (URL|Name, ...):',raw);if(input!==null){SS('links',input);renderLinks();}}renderLinks();
+
+// ===== Focus Timer =====
+let ftTotal=25*60,ftRemaining=ftTotal,ftRunning=false,ftInterval=null;
+let ftSessions=S('ft_sessions',0);const ftToday=new Date().toDateString();
+if(S('ft_date','')!==ftToday){ftSessions=0;SS('ft_date',ftToday);SS('ft_sessions',0);}
+let ftAudioCtx=null,ftNoiseNode=null,ftGainNode=null,ftSound='none';
+
+function ftSetMode(min,btn){if(ftRunning)return;document.querySelectorAll('[data-min]').forEach(b=>b.classList.remove('accent'));btn.classList.add('accent');ftTotal=min*60;ftRemaining=ftTotal;ftUpdateDisplay();document.getElementById('ftBar').style.width='0%';}
+function ftUpdateDisplay(){const m=Math.floor(ftRemaining/60),s=ftRemaining%60;document.getElementById('ftDisplay').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;document.getElementById('ftSessions').textContent=`Sessions: ${ftSessions}`;}
+function ftToggle(){if(ftRunning){clearInterval(ftInterval);ftRunning=false;document.getElementById('ftPlayBtn').textContent='Start';}else{if(ftRemaining<=0){ftRemaining=ftTotal;ftUpdateDisplay();}ftRunning=true;document.getElementById('ftPlayBtn').textContent='Pause';ftInterval=setInterval(()=>{ftRemaining--;ftUpdateDisplay();document.getElementById('ftBar').style.width=((ftTotal-ftRemaining)/ftTotal*100)+'%';if(ftRemaining<=0){clearInterval(ftInterval);ftRunning=false;document.getElementById('ftPlayBtn').textContent='Start';ftSessions++;SS('ft_sessions',ftSessions);ftUpdateDisplay();ftChime();if(Notification.permission==='granted')new Notification('Focus Complete!',{body:'Great job!'});}},1000);}}
+function ftReset(){clearInterval(ftInterval);ftRunning=false;ftRemaining=ftTotal;document.getElementById('ftPlayBtn').textContent='Start';document.getElementById('ftBar').style.width='0%';ftUpdateDisplay();}
+function ftChime(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[523.25,659.25,783.99].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.3,ctx.currentTime+i*0.15);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+i*0.15+0.4);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+i*0.15);o.stop(ctx.currentTime+i*0.15+0.4);});}catch(e){}}
+function ftSetSound(type,btn){document.querySelectorAll('[data-snd]').forEach(b=>b.classList.remove('on'));if(type!=='none')btn.classList.add('on');ftSound=type;if(ftNoiseNode){ftNoiseNode.disconnect();ftNoiseNode=null;}if(ftAudioCtx){ftAudioCtx.close();ftAudioCtx=null;}if(type==='none')return;
+try{ftAudioCtx=new(window.AudioContext||window.webkitAudioContext)();ftGainNode=ftAudioCtx.createGain();ftGainNode.gain.value=0.15;ftGainNode.connect(ftAudioCtx.destination);const bs=2*ftAudioCtx.sampleRate,buf=ftAudioCtx.createBuffer(1,bs,ftAudioCtx.sampleRate),d=buf.getChannelData(0);
+if(type==='rain'){let b0=0,b1=0;for(let i=0;i<bs;i++){const w=Math.random()*2-1;b0=0.997*b0+w*0.03;b1=0.97*b1+w*0.06;d[i]=(b0+b1)*0.3;if(Math.random()<0.002)d[i]+=(Math.random()-0.5)*0.2;}}
+else if(type==='forest'){for(let i=0;i<bs;i++){d[i]=(Math.random()*2-1)*0.03;if(Math.random()<0.0007){const fr=2500+Math.random()*3000,dr=Math.floor(0.02*ftAudioCtx.sampleRate);for(let j=0;j<dr&&(i+j)<bs;j++)d[i+j]+=Math.sin(2*Math.PI*fr*j/ftAudioCtx.sampleRate)*0.06*(1-j/dr);}}}
+else if(type==='ocean'){let lf=0;for(let i=0;i<bs;i++){lf=lf*0.985+(Math.random()*2-1)*0.015;d[i]=lf*0.4+Math.sin(i*0.0003)*0.12;}}
+else if(type==='cafe'){let last=0;for(let i=0;i<bs;i++){last=(last+0.02*(Math.random()*2-1))/1.02;d[i]=last*0.4;if(Math.random()<0.0015)d[i]+=(Math.random()-0.5)*0.15;}}
+ftNoiseNode=ftAudioCtx.createBufferSource();ftNoiseNode.buffer=buf;ftNoiseNode.loop=true;ftNoiseNode.connect(ftGainNode);ftNoiseNode.start();}catch(e){}}
+ftUpdateDisplay();if(Notification.permission==='default')Notification.requestPermission();
+
+// ===== Particles =====
+(function(){const c=document.getElementById('particleCanvas'),ctx=c.getContext('2d');let particles=[];
+function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+class P{constructor(){this.reset();this.y=Math.random()*c.height;}reset(){this.x=Math.random()*c.width;this.y=-20;this.size=Math.random()*2+1;this.sY=Math.random()*0.3+0.1;this.sX=(Math.random()-0.5)*0.3;this.op=Math.random()*0.4+0.1;this.fs=Math.random()*0.02+0.005;this.fo=Math.random()*Math.PI*2;}
+update(){this.y+=this.sY;this.x+=this.sX;if(this.y>c.height+20)this.reset();if(this.x<-20)this.x=c.width+20;if(this.x>c.width+20)this.x=-20;this.co=this.op+Math.sin(Date.now()*this.fs+this.fo)*0.15;}
+draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fillStyle=`rgba(196,163,90,${Math.max(0,this.co)})`;ctx.fill();}}
+for(let i=0;i<40;i++)particles.push(new P());
+(function anim(){ctx.clearRect(0,0,c.width,c.height);particles.forEach(p=>{p.update();p.draw();});requestAnimationFrame(anim);})();})();
 
 // ===== Background =====
-const bgImages = [
-  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80',
-  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80',
-  'https://images.unsplash.com/photo-1500964757637-c85e8a162699?w=1920&q=80',
-  'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80',
-  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80',
-  'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=1920&q=80',
-  'https://images.unsplash.com/photo-1439405326854-014607f694d7?w=1920&q=80',
-  'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=1920&q=80',
-  'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=1920&q=80',
-  'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920&q=80',
-];
-const bgIdx = new Date().getDate() % bgImages.length;
-document.getElementById('bgImage').style.backgroundImage = `url(${bgImages[bgIdx]})`;
+const bgImgs=['https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80','https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80','https://images.unsplash.com/photo-1500964757637-c85e8a162699?w=1920&q=80','https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80','https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80','https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=1920&q=80','https://images.unsplash.com/photo-1439405326854-014607f694d7?w=1920&q=80','https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=1920&q=80'];
+document.getElementById('bgImage').style.backgroundImage=`url(${bgImgs[new Date().getDate()%bgImgs.length]})`;
 </script>
 </body>
 </html>
