@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Percentage Calculator - Free Online Percent Calculation | Toolify</title>
+  <meta name="description" content="Free online percentage calculator. Calculate percentages, percentage increase/decrease, what % one number is of another. Includes discount and tip calculations.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://toolify.tools/tools/percentage-calculator.html">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="../index.html" class="logo"><div class="logo-icon">⚡</div>Toolify</a>
+  <nav class="nav-links">
+    <a href="../index.html">Home</a><a href="age-calculator.html">Age</a><a href="bmi-calculator.html">BMI</a><a href="password-generator.html">Password</a><a href="word-counter.html">Word</a>
+  </nav>
+</div></header>
+
+<main class="tool-page">
+  <nav class="breadcrumb"><a href="../index.html">Home</a> <span>/</span> <span>Percentage Calculator</span></nav>
+  <h1>Percentage Calculator</h1>
+  <p class="subtitle">Calculate percentages quickly. Multiple calculation modes for all your needs.</p>
+  <div class="ad-placeholder">[ AdSense Ad - 728x90 ]</div>
+
+  <div class="tool-card-main">
+    <div class="form-group"><label for="mode">Calculation Type</label><select id="mode" onchange="sw()">
+      <option value="1">What is X% of Y?</option><option value="2">X is what % of Y?</option><option value="3">% increase/decrease</option><option value="4">X is Y% of what?</option>
+    </select></div>
+
+    <div id="m1"><div style="display:flex;gap:16px;flex-wrap:wrap">
+      <div class="form-group" style="flex:1"><label for="m1p">Percentage (%)</label><input type="number" id="m1p" placeholder="20" step="any"></div>
+      <div class="form-group" style="flex:1"><label for="m1n">Number</label><input type="number" id="m1n" placeholder="150" step="any"></div>
+    </div></div>
+    <div id="m2" style="display:none"><div style="display:flex;gap:16px;flex-wrap:wrap">
+      <div class="form-group" style="flex:1"><label for="m2a">Part (X)</label><input type="number" id="m2a" placeholder="30" step="any"></div>
+      <div class="form-group" style="flex:1"><label for="m2b">Whole (Y)</label><input type="number" id="m2b" placeholder="200" step="any"></div>
+    </div></div>
+    <div id="m3" style="display:none"><div style="display:flex;gap:16px;flex-wrap:wrap">
+      <div class="form-group" style="flex:1"><label for="m3a">Original</label><input type="number" id="m3a" placeholder="100" step="any"></div>
+      <div class="form-group" style="flex:1"><label for="m3b">New</label><input type="number" id="m3b" placeholder="125" step="any"></div>
+    </div></div>
+    <div id="m4" style="display:none"><div style="display:flex;gap:16px;flex-wrap:wrap">
+      <div class="form-group" style="flex:1"><label for="m4a">Part (X)</label><input type="number" id="m4a" placeholder="25" step="any"></div>
+      <div class="form-group" style="flex:1"><label for="m4b">Percent (Y%)</label><input type="number" id="m4b" placeholder="20" step="any"></div>
+    </div></div>
+
+    <button class="btn" onclick="calc()">📊 Calculate</button>
+    <div class="result-box" id="rb"><div class="result-value" id="rv"></div><div class="result-label" id="rl"></div></div>
+  </div>
+
+  <div class="ad-placeholder">[ AdSense Ad - 300x250 ]</div>
+
+  <section style="margin-top:48px">
+    <h2>Quick Reference</h2>
+    <table style="width:100%;border-collapse:collapse;margin-top:16px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
+      <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border)">10% of $50</td><td style="padding:10px 12px;border-bottom:1px solid var(--border);font-weight:600">$5.00</td></tr>
+      <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border)">20% tip on $80</td><td style="padding:10px 12px;border-bottom:1px solid var(--border);font-weight:600">$16.00</td></tr>
+      <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border)">25% off $200</td><td style="padding:10px 12px;border-bottom:1px solid var(--border);font-weight:600">$50 off → $150</td></tr>
+      <tr><td style="padding:10px 12px">100→125</td><td style="padding:10px 12px;font-weight:600">25% increase</td></tr>
+    </table>
+  </section>
+</main>
+
+<footer class="footer"><div class="footer-links"><a href="../index.html">Home</a><a href="#">Privacy</a><a href="#">Terms</a></div><p>&copy; 2025 Toolify</p></footer>
+
+<script>
+function sw(){$(['m1','m2','m3','m4']).forEach((id,i)=>document.getElementById(id).style.display=parseInt(document.getElementById('mode').value)===i+1?'':'none');document.getElementById('rb').classList.remove('visible')}
+function $(ids){return ids.map(id=>document.getElementById(id))}
+function hideR(){document.getElementById('rb').classList.remove('visible')}
+function calc(){
+  const m=document.getElementById('mode').value;let r,lb;
+  if(m==='1'){const p=parseFloat(document.getElementById('m1p').value),n=parseFloat(document.getElementById('m1n').value);if(isNaN(p)||isNaN(n))return hideR();r=(p/100)*n;lb=p+'% of '+n+' = '+fmt(r)}
+  else if(m==='2'){const a=parseFloat(document.getElementById('m2a').value),b=parseFloat(document.getElementById('m2b').value);if(isNaN(a)||isNaN(b)||b===0)return hideR();r=(a/b)*100;lb=a+' is '+fmt(r)+'% of '+b}
+  else if(m==='3'){const a=parseFloat(document.getElementById('m3a').value),b=parseFloat(document.getElementById('m3b').value);if(isNaN(a)||isNaN(b)||a===0)return hideR();r=((b-a)/Math.abs(a))*100;lb=Math.abs(r).toFixed(2)+'% '+(r>=0?'increase':'decrease')}
+  else if(m==='4'){const a=parseFloat(document.getElementById('m4a').value),p=parseFloat(document.getElementById('m4b').value);if(isNaN(a)||isNaN(p)||p===0)return hideR();r=(a/p)*100;lb=a+' is '+p+'% of '+fmt(r)}
+  document.getElementById('rv').textContent=fmt(r);
+  document.getElementById('rl').textContent=lb;
+  document.getElementById('rb').classList.add('visible');
+}
+function fmt(n){return typeof n==='number'?n.toFixed(4).replace(/0+$/,'').replace(/\.$/,''):n}
+</script>
+</body>
+</html>
