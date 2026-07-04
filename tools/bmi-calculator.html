@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BMI Calculator - Body Mass Index | Toolify</title>
+  <meta name="description" content="Calculate your BMI instantly. Find out if you're underweight, normal, overweight, or obese. Free online BMI calculator with metric and imperial units.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://toolify.tools/tools/bmi-calculator.html">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="../index.html" class="logo"><div class="logo-icon">⚡</div>Toolify</a>
+  <nav class="nav-links">
+    <a href="../index.html">Home</a><a href="age-calculator.html">Age</a><a href="bmi-calculator.html">BMI</a><a href="password-generator.html">Password</a><a href="word-counter.html">Word</a>
+  </nav>
+</div></header>
+
+<main class="tool-page">
+  <nav class="breadcrumb"><a href="../index.html">Home</a> <span>/</span> <span>BMI Calculator</span></nav>
+  <h1>BMI Calculator</h1>
+  <p class="subtitle">Calculate your Body Mass Index (BMI) with metric or imperial units.</p>
+  <div class="ad-placeholder">[ AdSense Ad - 728x90 ]</div>
+
+  <div class="tool-card-main">
+    <div class="form-group"><label for="unit">Unit System</label><select id="unit" onchange="toggleU()">
+      <option value="metric">Metric (kg/cm)</option><option value="imperial">Imperial (lbs/ft-in)</option>
+    </select></div>
+    <div id="metricIn">
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:180px"><label for="wkg">Weight (kg)</label><input type="number" id="wkg" placeholder="70" step="0.1" min="1" max="500"></div>
+        <div class="form-group" style="flex:1;min-width:180px"><label for="hcm">Height (cm)</label><input type="number" id="hcm" placeholder="170" step="0.1" min="1" max="300"></div>
+      </div>
+    </div>
+    <div id="impIn" style="display:none">
+      <div class="form-group"><label for="wlb">Weight (lbs)</label><input type="number" id="wlb" placeholder="154" step="0.1" min="1" max="1100"></div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div class="form-group" style="flex:1"><label for="hft">Height (ft)</label><input type="number" id="hft" placeholder="5" min="0" max="8"></div>
+        <div class="form-group" style="flex:1"><label for="hin">Height (in)</label><input type="number" id="hin" placeholder="7" min="0" max="11"></div>
+      </div>
+    </div>
+    <button class="btn" onclick="calcBMI()">⚖️ Calculate BMI</button>
+
+    <div class="result-box" id="rb">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div class="result-value" id="bv" style="font-size:3rem"></div>
+        <div><div class="result-label" id="bc" style="font-size:1.2rem;font-weight:600"></div><div class="result-label" id="brg"></div></div>
+      </div>
+      <div style="margin-top:16px;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;display:flex">
+        <div style="width:18.5%;background:#3b82f6"></div><div style="width:6.4%;background:#10b981"></div><div style="width:5.1%;background:#f59e0b"></div><div style="width:70%;background:#ef4444"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);margin-top:4px"><span>16</span><span>18.5</span><span>25</span><span>30</span><span>40+</span></div>
+    </div>
+  </div>
+
+  <div class="ad-placeholder">[ AdSense Ad - 300x250 ]</div>
+
+  <section style="margin-top:48px">
+    <h2>BMI Categories</h2>
+    <table style="width:100%;border-collapse:collapse;margin-top:16px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
+      <thead><tr style="background:var(--bg-secondary)"><th style="padding:12px;text-align:left;border-bottom:1px solid var(--border)">BMI</th><th style="padding:12px;text-align:left;border-bottom:1px solid var(--border)">Category</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border)">&lt; 18.5</td><td style="padding:10px 12px;border-bottom:1px solid var(--border);color:#3b82f6">Underweight</td></tr>
+        <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border)">18.5–24.9</td><td style="padding:10px 12px;border-bottom:1px solid var(--border);color:#10b981">Normal</td></tr>
+        <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border)">25–29.9</td><td style="padding:10px 12px;border-bottom:1px solid var(--border);color:#f59e0b">Overweight</td></tr>
+        <tr><td style="padding:10px 12px">30+</td><td style="padding:10px 12px;color:#ef4444">Obese</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px;color:var(--text-secondary)"><strong>Note:</strong> BMI is a screening tool. Consult a healthcare provider for a full assessment.</p>
+  </section>
+</main>
+
+<footer class="footer"><div class="footer-links"><a href="../index.html">Home</a><a href="#">Privacy</a><a href="#">Terms</a></div><p>&copy; 2025 Toolify</p></footer>
+
+<script>
+function toggleU(){document.getElementById('metricIn').style.display=document.getElementById('unit').value==='metric'?'':'none';document.getElementById('impIn').style.display=document.getElementById('unit').value==='imperial'?'':'none';document.getElementById('rb').classList.remove('visible')}
+function calcBMI(){
+  let bmi;
+  if(document.getElementById('unit').value==='metric'){
+    const kg=parseFloat(document.getElementById('wkg').value),cm=parseFloat(document.getElementById('hcm').value);
+    if(!kg||!cm||cm<=0)return;
+    bmi=kg/((cm/100)**2);
+  }else{
+    const lb=parseFloat(document.getElementById('wlb').value);
+    const tin=(parseFloat(document.getElementById('hft').value)||0)*12+(parseFloat(document.getElementById('hin').value)||0);
+    if(!lb||tin<=0)return;
+    bmi=(lb/(tin**2))*703;
+  }
+  bmi=Math.round(bmi*10)/10;
+  let cat,cl;
+  if(bmi<18.5){cat='Underweight';cl='#3b82f6'}else if(bmi<25){cat='Normal weight';cl='#10b981'}else if(bmi<30){cat='Overweight';cl='#f59e0b'}else{cat='Obese';cl='#ef4444'}
+  document.getElementById('bv').textContent=bmi;document.getElementById('bv').style.color=cl;
+  document.getElementById('bc').textContent=cat;document.getElementById('bc').style.color=cl;
+  document.getElementById('brg').textContent='Healthy range: 18.5–24.9';
+  document.getElementById('rb').classList.add('visible');
+}
+</script>
+</body>
+</html>
