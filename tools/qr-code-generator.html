@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator - Free Online QR Creator | Toolify</title>
+  <meta name="description" content="Generate free QR codes for URLs, text, WiFi, and email. Download as PNG. High quality, instant QR code generator with customizable colors.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://toolify.tools/tools/qr-code-generator.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>#qrcode{display:flex;justify-content:center;margin:24px 0}#qrcode canvas,#qrcode img{border-radius:8px;border:4px solid var(--bg-secondary)}</style>
+</head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="../index.html" class="logo"><div class="logo-icon">⚡</div>Toolify</a>
+  <nav class="nav-links">
+    <a href="../index.html">Home</a><a href="age-calculator.html">Age</a><a href="bmi-calculator.html">BMI</a><a href="password-generator.html">Password</a><a href="word-counter.html">Word</a>
+  </nav>
+</div></header>
+
+<main class="tool-page">
+  <nav class="breadcrumb"><a href="../index.html">Home</a> <span>/</span> <span>QR Code Generator</span></nav>
+  <h1>QR Code Generator</h1>
+  <p class="subtitle">Create free QR codes for URLs, text, WiFi networks, and email. Download as PNG.</p>
+  <div class="ad-placeholder">[ AdSense Ad - 728x90 ]</div>
+
+  <div class="tool-card-main">
+    <div class="form-group"><label for="qt">Type</label><select id="qt" onchange="swQR()">
+      <option value="url">URL / Link</option><option value="text">Plain Text</option><option value="wifi">WiFi Network</option><option value="email">Email</option>
+    </select></div>
+
+    <div id="qurl"><div class="form-group"><label for="qui">URL</label><input type="url" id="qui" placeholder="https://example.com" value="https://"></div></div>
+    <div id="qtext" style="display:none"><div class="form-group"><label for="qti">Text</label><textarea id="qti" placeholder="Type any text..."></textarea></div></div>
+    <div id="qwifi" style="display:none">
+      <div class="form-group"><label for="ws">WiFi Name (SSID)</label><input type="text" id="ws" placeholder="MyWiFi"></div>
+      <div class="form-group"><label for="wp">Password</label><input type="text" id="wp" placeholder="password123"></div>
+      <div class="form-group"><label for="wsec">Security</label><select id="wsec"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="nopass">None</option></select></div>
+    </div>
+    <div id="qemail" style="display:none">
+      <div class="form-group"><label for="qe">Email</label><input type="email" id="qe" placeholder="hello@example.com"></div>
+      <div class="form-group"><label for="qes">Subject</label><input type="text" id="qes" placeholder="Hello"></div>
+      <div class="form-group"><label for="qeb">Body</label><textarea id="qeb" placeholder="Message..."></textarea></div>
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div class="form-group" style="min-width:120px"><label for="qs">Size</label><select id="qs"><option value="200">200</option><option value="300" selected>300</option><option value="400">400</option><option value="500">500</option></select></div>
+      <div class="form-group" style="min-width:120px"><label for="qc">Color</label><input type="color" id="qc" value="#000000" style="height:44px;padding:4px;width:80px"></div>
+    </div>
+    <button class="btn" onclick="genQR()">📱 Generate QR Code</button>
+    <div id="qrcode"></div>
+    <div style="text-align:center;display:none" id="dbtn"><button class="btn" onclick="dlQR()">⬇️ Download PNG</button></div>
+  </div>
+
+  <div class="ad-placeholder">[ AdSense Ad - 300x250 ]</div>
+</main>
+
+<footer class="footer"><div class="footer-links"><a href="../index.html">Home</a><a href="#">Privacy</a><a href="#">Terms</a></div><p>&copy; 2025 Toolify</p></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+function swQR(){
+  ['qurl','qtext','qwifi','qemail'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById({url:'qurl',text:'qtext',wifi:'qwifi',email:'qemail'}[document.getElementById('qt').value]).style.display='';
+  document.getElementById('qrcode').innerHTML='';document.getElementById('dbtn').style.display='none';
+}
+function genQR(){
+  const t=document.getElementById('qt').value;let d='';
+  if(t==='url'){d=document.getElementById('qui').value.trim();if(!d||!d.startsWith('http')){alert('Enter a valid URL starting with http:// or https://');return}}
+  else if(t==='text'){d=document.getElementById('qti').value.trim();if(!d){alert('Enter text');return}}
+  else if(t==='wifi'){const ss=document.getElementById('ws').value.trim();if(!ss){alert('Enter WiFi name');return};d='WIFI:T:'+document.getElementById('wsec').value+';S:'+ss+';P:'+document.getElementById('wp').value.trim()+';;'}
+  else if(t==='email'){const e=document.getElementById('qe').value.trim();if(!e){alert('Enter email');return};const s=document.getElementById('qes').value.trim(),b=document.getElementById('qeb').value.trim();d='mailto:'+e+(s?'?subject='+encodeURIComponent(s):'')+(b?(s?'&':'?')+'body='+encodeURIComponent(b):'')}
+  const sz=parseInt(document.getElementById('qs').value),cl=document.getElementById('qc').value;
+  const ctr=document.getElementById('qrcode');ctr.innerHTML='';
+  try{new QRCode(ctr,{text:d,width:sz,height:sz,colorDark:cl,colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});document.getElementById('dbtn').style.display=''}catch(e){ctr.innerHTML='<p style="color:red">Error generating QR code</p>'}
+}
+function dlQR(){const c=document.querySelector('#qrcode canvas');if(!c)return;const a=document.createElement('a');a.download='qrcode.png';a.href=c.toDataURL('image/png');a.click()}
+</script>
+</body>
+</html>
